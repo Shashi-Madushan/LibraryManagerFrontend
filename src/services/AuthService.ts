@@ -1,0 +1,31 @@
+import apiClient from "./ApiClient";
+import type{ SignupRequest, AuthResponse } from "../types/AuthTypes";
+
+export const signup = async (signupData: SignupRequest): Promise<AuthResponse> => {
+    try {
+        const response = await apiClient.post<AuthResponse>('/auth/register', signupData);
+        return response.data;
+    } catch (error) {
+        console.error("Signup failed:", error);
+        throw error;
+    }
+} 
+
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
+    try {
+        const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
+        return response.data;
+    } catch (error) {
+        console.error("Login failed:", error);
+        throw error;
+    }
+}
+
+export const logout = async (): Promise<void> => {
+    try {
+        await apiClient.post('/auth/logout');
+    } catch (error) {
+        console.error("Logout failed:", error);
+        throw error;
+    }
+}
