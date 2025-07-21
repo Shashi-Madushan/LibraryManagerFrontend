@@ -6,7 +6,7 @@ interface TopBarProps {
     isExpanded: boolean;
 }
 
-const TopBar = ({ toggleSidebar, className, isExpanded }: TopBarProps) => {
+const TopBar = ({ toggleSidebar, className }: TopBarProps) => {
     return (
         <div className={`bg-white/70 backdrop-blur-xl mx-4 mt-4 h-14 flex items-center justify-between px-4 rounded-xl shadow-sm ${className || ''}`}>
             <div className="flex items-center gap-4">

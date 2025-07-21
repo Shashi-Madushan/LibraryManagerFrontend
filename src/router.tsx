@@ -5,7 +5,7 @@ import Layout from "./pages/Layout";
 import AdminLayout from "./pages/admin/Layout";
 import AdminLogin from "./pages/admin/Login";
 import AdminRoute from "./components/AdminRoute";
-import UserManagement from "./components/admin/UserManagement";
+import UserManagement from "./pages/admin/UserManagement";
 
 const router = createBrowserRouter([
     {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { User } from '../../types/User';
 import { getAllUsers, activateUser, deactivateUser, deleteUser, addUser, updateUser } from '../../services/admin/UserManagementService';
 import { FaEye, FaTrash, FaCheck, FaBan, FaEdit, FaPlus } from 'react-icons/fa';
-import UserFormModal from './UserFormModal';
+import UserFormModal from '../../components/admin/UserFormModal';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);

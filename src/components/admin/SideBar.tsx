@@ -8,7 +8,7 @@ interface SideBarProps {
     onExpandChange?: (expanded: boolean) => void; // new prop
 }
 
-const SideBar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
+const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const location = useLocation();
     const { logout } = useAuth();   

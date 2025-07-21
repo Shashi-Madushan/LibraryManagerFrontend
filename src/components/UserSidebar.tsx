@@ -4,12 +4,11 @@ import { FaBook, FaUser, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
 import { useAuth } from '../context/UseAuth';
 
 interface SideBarProps {
-    isOpen: boolean;
     onClose: () => void;
     onExpandChange?: (expanded: boolean) => void;
 }
 
-const UserSidebar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
+const UserSidebar = ({ onClose, onExpandChange }: SideBarProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const location = useLocation();
     const { logout } = useAuth();
@@ -43,21 +42,14 @@ const UserSidebar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
 
     return (
         <>
-            <div 
-                className={`fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity lg:hidden ${
-                    isOpen ? 'opacity-100 z-40' : 'opacity-0 -z-10'
-                }`}
-                onClick={onClose}
-            />
+            {/* Removed duplicate overlay as it's handled in Layout.tsx */}
 
             <div 
                 className={`
-                    fixed top-4 left-4 h-[calc(100vh-2rem)] bg-white/70 backdrop-blur-xl rounded-2xl
-                    transform transition-all duration-300 ease-in-out z-50
-                    lg:relative lg:left-0 lg:top-0 lg:h-screen lg:rounded-none lg:rounded-r-2xl
-                    ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-                    ${isExpanded ? 'w-72' : 'w-20 lg:w-20'}
-                    ${window.innerWidth >= 1024 ? 'hover:w-72' : ''}
+                    h-full bg-white shadow-lg
+                    transform transition-all duration-300 ease-in-out
+                    ${isExpanded ? 'w-72' : 'w-20'}
+                    ${window.innerWidth >= 1024 ? 'hover:w-72' : 'w-72 lg:w-20'}
                 `}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
@@ -66,7 +58,7 @@ const UserSidebar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
                     ${isExpanded ? 'px-4' : 'px-2'}`}>
                     <h1 className={`font-semibold text-gray-800 whitespace-nowrap overflow-hidden transition-all
                         ${isExpanded ? 'text-xl opacity-100' : 'lg:text-[0px] lg:opacity-0'}`}>
-                        Library Dashboard
+                        User Panel
                     </h1>
                 </div>
 
