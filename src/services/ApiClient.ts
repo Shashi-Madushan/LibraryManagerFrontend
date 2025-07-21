@@ -21,23 +21,31 @@ export const setHeader = (accessToken: string) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config // original request
-    if (error.response.status === 403 && !originalRequest._retry) {
+    const originalRequest = error.config
+    
+    // Only try to refresh if it's a 403 error and we haven't tried refreshing yet
+    if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true
+      
       try {
         const result = await apiClient.post("/auth/refresh-token")
         const newAccessToken = result.data.accessToken
         setHeader(newAccessToken)
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`
         return apiClient(originalRequest)
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 401) {
-            window.location.href = "/login"
-          }
+      } catch (refreshError) {
+        // If refresh token fails, redirect based on the current path
+        const currentPath = window.location.pathname
+        if (currentPath.startsWith('/admin')) {
+          window.location.href = "/admin/login"
+        } else {
+          window.location.href = "/login"
         }
+        return Promise.reject(refreshError)
       }
     }
+    
+    return Promise.reject(error)
   }
 )
 
