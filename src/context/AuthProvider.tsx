@@ -3,24 +3,28 @@ import { AuthContext } from "./AuthContext"
 import apiClient, { setHeader } from "../services/ApiClient"
 import router from "../router"
 import type { User } from "../types/User"
+import { getStoredAccessToken, getStoredUser, storeAuthData, clearAuthData } from "../util/authStorage"
 
 interface AuthProviderProps {
   children: React.ReactNode
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [accessToken, setAccessToken] = useState<string>("")
+  // Initialize state from localStorage
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!getStoredAccessToken())
+  const [accessToken, setAccessToken] = useState<string>(getStoredAccessToken())
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true)
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(getStoredUser())
 
   const login = (token: string, userData: User) => {
+    storeAuthData(token, userData)
     setIsLoggedIn(true)
     setAccessToken(token)
     setUser(userData)
   }
 
   const logout = () => {
+    clearAuthData()
     setIsLoggedIn(false)
     setUser(null)
     setAccessToken("")

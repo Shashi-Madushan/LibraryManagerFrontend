@@ -2,11 +2,12 @@ import { FaBars, FaBell, FaUserCircle, FaSearch } from 'react-icons/fa';
 
 interface TopBarProps {
     toggleSidebar: () => void;
+    className?: string;
 }
 
-const TopBar = ({ toggleSidebar }: TopBarProps) => {
+const TopBar = ({ toggleSidebar, className }: TopBarProps) => {
     return (
-        <div className="bg-white/70 backdrop-blur-xl m-2 h-16 flex items-center justify-between px-4 rounded-xl">
+        <div className={`bg-white/70 backdrop-blur-xl m-2 h-16 flex items-center justify-between px-4 rounded-xl ${className || ''}`}>
             <div className="flex items-center">
                 <button
                     onClick={toggleSidebar}

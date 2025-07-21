@@ -1,15 +1,40 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaBook, FaUsers, FaChartBar, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { logout } from '../../services/AuthService';
 
 interface SideBarProps {
     isOpen: boolean;
     onClose: () => void;
+    onExpandChange?: (expanded: boolean) => void; // new prop
 }
 
-const SideBar = ({ isOpen, onClose }: SideBarProps) => {
+const SideBar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+
+    // Notify parent when expanded/collapsed
+    useEffect(() => {
+        if (onExpandChange) onExpandChange(isExpanded);
+    }, [isExpanded, onExpandChange]);
+
+    // Only allow expand/collapse on desktop
+    const handleMouseEnter = () => {
+        if (window.innerWidth >= 1024) setIsExpanded(true);
+    };
+    const handleMouseLeave = () => {
+        if (window.innerWidth >= 1024) setIsExpanded(false);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/admin/login');
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
 
     const menuItems = [
         { icon: <FaChartBar />, label: 'Dashboard', path: '/admin' },
@@ -35,11 +60,11 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                     transform transition-all duration-300 ease-in-out z-50
                     lg:relative lg:left-0 lg:top-0 lg:h-screen lg:rounded-none lg:rounded-r-2xl
                     ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-                    ${isExpanded ? 'w-72' : 'lg:w-20'}
-                    hover:lg:w-72
+                    ${isExpanded ? 'w-72' : 'w-20 lg:w-20'}
+                    ${window.innerWidth >= 1024 ? 'hover:w-72' : ''}
                 `}
-                onMouseEnter={() => setIsExpanded(true)}
-                onMouseLeave={() => setIsExpanded(false)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
             >
                 {/* Logo */}
                 <div className={`h-16 flex items-center justify-center transition-all duration-300
@@ -77,8 +102,11 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
 
                 {/* Logout Button */}
                 <div className="absolute bottom-8 w-full px-3">
-                    <button className={`w-full flex items-center gap-3 px-4 py-2.5 text-gray-600 
-                        hover:bg-red-50/80 hover:text-red-600 rounded-xl transition-all duration-200`}>
+                    <button 
+                        onClick={handleLogout}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-gray-600 
+                        hover:bg-red-50/80 hover:text-red-600 rounded-xl transition-all duration-200`}
+                    >
                         <span className="text-lg"><FaSignOutAlt /></span>
                         <span className={`whitespace-nowrap transition-all ${isExpanded ? 'opacity-100' : 'lg:opacity-0 lg:w-0'}`}>
                             Logout

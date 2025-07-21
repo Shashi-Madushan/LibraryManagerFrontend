@@ -1,5 +1,6 @@
 import apiClient from "./ApiClient";
 import type{ SignupRequest, AuthResponse } from "../types/AuthTypes";
+import { clearAuthData } from "../util/authStorage";
 
 export const signup = async (signupData: SignupRequest): Promise<AuthResponse> => {
     try {
@@ -24,6 +25,7 @@ export const login = async (email: string, password: string): Promise<AuthRespon
 export const logout = async (): Promise<void> => {
     try {
         await apiClient.post('/auth/logout');
+        clearAuthData();
     } catch (error) {
         console.error("Logout failed:", error);
         throw error;

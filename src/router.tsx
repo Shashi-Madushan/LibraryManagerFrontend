@@ -5,6 +5,7 @@ import Layout from "./pages/Layout";
 import AdminLayout from "./pages/admin/Layout";
 import AdminLogin from "./pages/admin/Login";
 import AdminRoute from "./components/AdminRoute";
+import UserManagement from "./components/admin/UserManagement";
 
 const router = createBrowserRouter([
     {
@@ -29,9 +30,9 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: (
-                    // <AdminRoute>
+                    <AdminRoute>
                         <AdminLayout />
-                    // </AdminRoute>
+                     </AdminRoute>
                 ),
                 children: [
                     {
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "users",
-                        element: <div>Users Management</div>,
+                        element: <UserManagement/>,
                     },
                     {
                         path: "settings",
