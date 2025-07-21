@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaBook, FaUsers, FaChartBar, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaBook, FaUsers, FaChartBar, FaCog, FaSignOutAlt, FaExchangeAlt, FaHistory } from 'react-icons/fa';
 import { useAuth } from '../../context/UseAuth';
 interface SideBarProps {
     isOpen: boolean;
@@ -39,6 +39,8 @@ const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
         { icon: <FaChartBar />, label: 'Dashboard', path: '/admin' },
         { icon: <FaBook />, label: 'Books', path: '/admin/books' },
         { icon: <FaUsers />, label: 'Users', path: '/admin/users' },
+        { icon: <FaExchangeAlt />, label: 'Lendings', path: '/admin/lendings' },
+        { icon: <FaHistory />, label: 'Logs', path: '/admin/logs' },
         { icon: <FaCog />, label: 'Settings', path: '/admin/settings' },
     ];
 

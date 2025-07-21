@@ -2,22 +2,28 @@ import { useState, useEffect } from 'react';
 import type { User } from '../../types/User';
 import { FaTimes } from 'react-icons/fa';
 
+
+export type UserWithPassword = User & {
+    password: string;
+}
+
 interface UserFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (userData: Partial<User>) => Promise<void>;
-    user?: User;
+    onSubmit: (userData: Partial<UserWithPassword>) => Promise<void>;
+    user?: UserWithPassword;
     mode: 'add' | 'edit';
 }
 
 const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalProps) => {
-    const [formData, setFormData] = useState<Partial<User>>({
+    const [formData, setFormData] = useState<Partial<UserWithPassword>>({
         email: '',
         username: '',
         firstName: '',
         lastName: '',
         role: 'user',
-        isActive: true
+        isActive: true,
+        password: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -30,7 +36,8 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role,
-                isActive: user.isActive
+                isActive: user.isActive,
+                password: user.password
             });
         } else {
             // Reset form for new user
@@ -40,7 +47,8 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
                 firstName: '',
                 lastName: '',
                 role: 'user',
-                isActive: true
+                isActive: true,
+                password: '' // Reset password for new user
             });
         }
     }, [user, mode]);
@@ -59,7 +67,12 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
         setLoading(true);
 
         try {
-            await onSubmit(formData);
+            // Remove password field if empty or in edit mode
+            const submissionData = {...formData};
+            if (mode === 'edit' || !submissionData.password) {
+                delete submissionData.password;
+            }
+            await onSubmit(submissionData);
             onClose();
         } catch (err) {
             setError('Failed to save user data');
@@ -72,50 +85,52 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg w-full max-w-md p-6 relative">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl w-full max-w-md p-8 relative shadow-xl transform transition-all">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                    <FaTimes />
+                    <FaTimes className="w-5 h-5" />
                 </button>
                 
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">
                     {mode === 'add' ? 'Add New User' : 'Edit User'}
                 </h2>
 
                 {error && (
-                    <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                    <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleInputChange}
                             disabled={mode === 'edit'}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100"
+                            className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-50 text-sm h-11 px-4"
                             required
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Username</label>
-                        <input
-                            type="text"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleInputChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            required
-                        />
-                    </div>
+                    {mode === 'edit' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Username</label>
+                            <input
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                                className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-11 px-4"
+                                required
+                            />
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -125,7 +140,7 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
                                 name="firstName"
                                 value={formData.firstName}
                                 onChange={handleInputChange}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-11 px-4"
                                 required
                             />
                         </div>
@@ -137,7 +152,7 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
                                 name="lastName"
                                 value={formData.lastName}
                                 onChange={handleInputChange}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-11 px-4"
                                 required
                             />
                         </div>
@@ -149,7 +164,7 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
                             name="role"
                             value={formData.role}
                             onChange={handleInputChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-11 px-4"
                             required
                         >
                             <option value="user">User</option>
@@ -168,18 +183,33 @@ const UserFormModal = ({ isOpen, onClose, onSubmit, user, mode }: UserFormModalP
                         <label className="ml-2 block text-sm text-gray-700">Active</label>
                     </div>
 
-                    <div className="flex justify-end gap-3 mt-6">
+                    {mode === 'add' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Password</label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-11 px-4"
+                                required={mode === 'add'}
+                                minLength={6}
+                            />
+                        </div>
+                    )}
+
+                    <div className="flex justify-end gap-3 mt-8">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                            className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md disabled:opacity-50"
+                            className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
                         >
                             {loading ? 'Saving...' : mode === 'add' ? 'Add User' : 'Save Changes'}
                         </button>

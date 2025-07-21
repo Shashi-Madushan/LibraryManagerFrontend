@@ -44,7 +44,7 @@ export const deleteUser = async (userId: string) => {
 // User Management endpoints
 export const addUser = async (userData: Partial<User>) => {
     try {
-        const response = await apiClient.post('/user', userData);
+        const response = await apiClient.post('/user/add', userData);
         return response.data;
     } catch (error) {
         console.error('Error adding user:', error);

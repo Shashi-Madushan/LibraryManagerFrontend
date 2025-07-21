@@ -12,6 +12,7 @@ const UserManagement = () => {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [successData, setSuccessData] = useState<any>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -66,7 +67,7 @@ const UserManagement = () => {
 
     try {
       await deleteUser(userId);
-      fetchUsers(); // Refresh the list
+      fetchUsers(); 
       setError(null);
     } catch (err) {
       setError('Failed to delete user');
@@ -94,17 +95,23 @@ const UserManagement = () => {
   const handleSubmitUser = async (userData: Partial<User>) => {
     try {
       if (modalMode === 'add') {
-        await addUser(userData);
-      } else {
-        if (editingUser?._id) {
-          await updateUser(editingUser._id, userData);
+        const response = await addUser(userData);
+        if (response.success) {
+          setSuccessData(response.data);
         }
+      } else if (modalMode === 'edit' && editingUser?._id) {
+        // Remove any undefined or null values from userData
+        const cleanedData = Object.fromEntries(
+          Object.entries(userData).filter(([_, value]) => value != null)
+        );
+        await updateUser(editingUser._id, cleanedData);
       }
       fetchUsers();
       handleCloseModal();
       setError(null);
     } catch (err) {
       setError(`Failed to ${modalMode} user`);
+      console.error(`Error ${modalMode}ing user:`, err);
       throw err;
     }
   };
@@ -122,19 +129,37 @@ const UserManagement = () => {
   const inactiveUsers = totalUsers - activeUsers;
 
   const UserDetailsModal = ({ user }: { user: User }) => (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full transform transition-all">
-        <h3 className="text-xl font-bold mb-4">User Details</h3>
-        <div className="space-y-2">
-          <p><span className="font-semibold">Username:</span> {user.username}</p>
-          <p><span className="font-semibold">Email:</span> {user.email}</p>
-          <p><span className="font-semibold">Full Name:</span> {user.firstName} {user.lastName}</p>
-          <p><span className="font-semibold">Role:</span> {user.role}</p>
-          <p><span className="font-semibold">Status:</span> {user.isActive ? 'Active' : 'Inactive'}</p>
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full transform transition-all">
+        <h3 className="text-2xl font-bold text-gray-800 mb-6">User Details</h3>
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm text-gray-500">Username</span>
+            <span className="text-base font-medium text-gray-900">{user.username}</span>
+          </div>
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm text-gray-500">Email</span>
+            <span className="text-base font-medium text-gray-900">{user.email}</span>
+          </div>
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm text-gray-500">Full Name</span>
+            <span className="text-base font-medium text-gray-900">{user.firstName} {user.lastName}</span>
+          </div>
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm text-gray-500">Role</span>
+            <span className="text-base font-medium text-gray-900 capitalize">{user.role}</span>
+          </div>
+          <div className="flex flex-col space-y-1">
+            <span className="text-sm text-gray-500">Status</span>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium
+              ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {user.isActive ? 'Active' : 'Inactive'}
+            </span>
+          </div>
         </div>
         <button
           onClick={() => setSelectedUser(null)}
-          className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+          className="mt-8 w-full px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
         >
           Close
         </button>
@@ -151,6 +176,32 @@ const UserManagement = () => {
     >
       <Icon className="w-4 h-4" />
     </button>
+  );
+
+  const SuccessModal = ({ data, onClose }: { data: any; onClose: () => void }) => (
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">User Created Successfully</h3>
+          <div className="text-left bg-gray-50 rounded-lg p-4 mb-4">
+            <p className="text-sm text-gray-600 mb-2"><span className="font-semibold">Username:</span> {data.username}</p>
+            <p className="text-sm text-gray-600 mb-2"><span className="font-semibold">Email:</span> {data.email}</p>
+            <p className="text-sm text-gray-600"><span className="font-semibold">Role:</span> {data.role}</p>
+          </div>
+          <button
+            onClick={() => onClose()}
+            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 
   if (loading) {
@@ -267,10 +318,10 @@ const UserManagement = () => {
         user={editingUser || undefined}
         mode={modalMode}
       />
+      {successData && <SuccessModal data={successData} onClose={() => setSuccessData(null)} />}
     </div>
   );
 };
 
 export default UserManagement;
 
-  
