@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaBook, FaUsers, FaChartBar, FaCog, FaSignOutAlt } from 'react-icons/fa';
-import { logout } from '../../services/AuthService';
-
+import { useAuth } from '../../context/UseAuth';
 interface SideBarProps {
     isOpen: boolean;
     onClose: () => void;
@@ -12,7 +11,7 @@ interface SideBarProps {
 const SideBar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const location = useLocation();
-    const navigate = useNavigate();
+    const { logout } = useAuth();   
 
     // Notify parent when expanded/collapsed
     useEffect(() => {
@@ -30,7 +29,7 @@ const SideBar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
     const handleLogout = async () => {
         try {
             await logout();
-            navigate('/admin/login');
+            
         } catch (error) {
             console.error('Logout failed:', error);
         }
@@ -45,23 +44,13 @@ const SideBar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
 
     return (
         <>
-            {/* Overlay */}
-            <div 
-                className={`fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity lg:hidden ${
-                    isOpen ? 'opacity-100 z-40' : 'opacity-0 -z-10'
-                }`}
-                onClick={onClose}
-            />
-
             {/* Sidebar */}
             <div 
                 className={`
-                    fixed top-4 left-4 h-[calc(100vh-2rem)] bg-white/70 backdrop-blur-xl rounded-2xl
-                    transform transition-all duration-300 ease-in-out z-50
-                    lg:relative lg:left-0 lg:top-0 lg:h-screen lg:rounded-none lg:rounded-r-2xl
-                    ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-                    ${isExpanded ? 'w-72' : 'w-20 lg:w-20'}
-                    ${window.innerWidth >= 1024 ? 'hover:w-72' : ''}
+                    h-full bg-white shadow-lg
+                    transform transition-all duration-300 ease-in-out
+                    ${isExpanded ? 'w-72' : 'w-20'}
+                    ${window.innerWidth >= 1024 ? 'hover:w-72' : 'w-72 lg:w-20'}
                 `}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}

@@ -8,8 +8,13 @@ export const getStoredAccessToken = (): string => {
 }
 
 export const getStoredUser = (): User | null => {
-  const userJson = localStorage.getItem(USER_KEY)
-  return userJson ? JSON.parse(userJson) : null
+  try {
+    const userJson = localStorage.getItem(USER_KEY)
+    return userJson ? JSON.parse(userJson) : null
+  } catch (error) {
+    console.error('Error parsing stored user:', error)
+    return null
+  }
 }
 
 export const storeAuthData = (accessToken: string, user: User): void => {

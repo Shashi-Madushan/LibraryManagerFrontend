@@ -1,4 +1,5 @@
 import apiClient from "../ApiClient";
+import type { User } from "../../types/User";
 
 export const getAllUsers = async () => {
     try {
@@ -40,9 +41,28 @@ export const deleteUser = async (userId: string) => {
     }
 }
 
-// Additional endpoints (not currently in use)
+// User Management endpoints
+export const addUser = async (userData: Partial<User>) => {
+    try {
+        const response = await apiClient.post('/user', userData);
+        return response.data;
+    } catch (error) {
+        console.error('Error adding user:', error);
+        throw error;
+    }
+}
 
+export const updateUser = async (userId: string, userData: Partial<User>) => {
+    try {
+        const response = await apiClient.patch(`/user/${userId}`, userData);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating user:', error);
+        throw error;
+    }
+}
 
+// Other endpoints
 export const getUserInfo = async () => {
     try {
         const response = await apiClient.get('/user/me');

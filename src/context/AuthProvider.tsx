@@ -1,126 +1,115 @@
-import { useEffect, useState } from "react"
+import { useEffect, useReducer } from "react"
 import { AuthContext } from "./AuthContext"
 import apiClient, { setHeader, refreshTokenRequest } from "../services/ApiClient"
 import router from "../router"
 import type { User } from "../types/User"
 import { getStoredAccessToken, getStoredUser, storeAuthData, clearAuthData } from "../util/authStorage"
 
-interface AuthProviderProps {
-  children: React.ReactNode
+interface AuthState {
+  isLoggedIn: boolean;
+  accessToken: string;
+  isAuthenticating: boolean;
+  user: User | null;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!getStoredAccessToken())
-  const [accessToken, setAccessToken] = useState<string>(getStoredAccessToken())
-  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true)
-  const [user, setUser] = useState<User | null>(getStoredUser())
+type AuthAction =
+  | { type: 'SET_AUTH_DATA'; payload: { token: string; user: User | null } }
+  | { type: 'CLEAR_AUTH_DATA' }
+  | { type: 'SET_AUTHENTICATING'; payload: boolean }
+
+const initialState: AuthState = {
+  isLoggedIn: !!getStoredAccessToken(),
+  accessToken: getStoredAccessToken(),
+  isAuthenticating: true,
+  user: getStoredUser()
+}
+
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+  switch (action.type) {
+    case 'SET_AUTH_DATA':
+      return {
+        ...state,
+        isLoggedIn: true,
+        accessToken: action.payload.token,
+        user: action.payload.user
+      }
+    case 'CLEAR_AUTH_DATA':
+      return {
+        ...state,
+        isLoggedIn: false,
+        accessToken: '',
+        user: null
+      }
+    case 'SET_AUTHENTICATING':
+      return {
+        ...state,
+        isAuthenticating: action.payload
+      }
+    default:
+      return state
+  }
+}
+
+const handleNavigation = (currentPath: string, userRole?: string) => {
+  if (currentPath === "/login" || currentPath === "/signup" || currentPath === "/") {
+    router.navigate(userRole === 'admin' ? "/admin" : "/dashboard")
+  } else if (currentPath.startsWith('/admin')) {
+    if (!userRole || userRole !== 'admin') {
+      router.navigate("/dashboard")
+    }
+  }
+}
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, dispatch] = useReducer(authReducer, initialState)
 
   const handleRefreshToken = async () => {
     try {
       const result = await refreshTokenRequest()
       const { accessToken, user } = result.data
       storeAuthData(accessToken, user)
-      setAccessToken(accessToken)
-      setUser(user)
-      setIsLoggedIn(true)
+      dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user } })
       return true
     } catch (error) {
       clearAuthData()
-      setAccessToken("")
-      setUser(null)
-      setIsLoggedIn(false)
+      dispatch({ type: 'CLEAR_AUTH_DATA' })
       return false
     }
   }
 
-  // Set up axios interceptor for handling 401 errors
   useEffect(() => {
     const interceptor = apiClient.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config
-        
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true
-          const refreshSuccess = await handleRefreshToken()
-          
-          if (refreshSuccess) {
-            return apiClient(originalRequest)
-          }
-          
-          // Handle failed refresh based on current path
-          const currentPath = window.location.pathname
-          if (currentPath.startsWith('/admin')) {
-            router.navigate("/admin/login")
-          } else {
-            router.navigate("/login")
-          }
+      response => response,
+      async error => {
+        if (error.response?.status === 401 && !error.config._retry) {
+          error.config._retry = true
+          return (await handleRefreshToken())
+            ? apiClient(error.config)
+            : router.navigate(window.location.pathname.startsWith('/admin') ? "/admin/login" : "/login")
         }
         return Promise.reject(error)
       }
     )
-
-    return () => {
-      apiClient.interceptors.response.eject(interceptor)
-    }
+    return () => apiClient.interceptors.response.eject(interceptor)
   }, [])
 
-  const login = (token: string, userData: User) => {
-    storeAuthData(token, userData)
-    setIsLoggedIn(true)
-    setAccessToken(token)
-    setUser(userData)
-  }
-
-  const logout = async () => {
-    try {
-      await apiClient.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      clearAuthData();
-      setIsLoggedIn(false);
-      setUser(null);
-      setAccessToken("");
-     
-    }
-  }
-
   useEffect(() => {
-    setHeader(accessToken)
-  }, [accessToken])
+    setHeader(state.accessToken)
+  }, [state.accessToken])
 
   useEffect(() => {
     const tryRefresh = async () => {
       try {
-        // Try to refresh the token
         const result = await apiClient.post("/auth/refresh-token")
-        setAccessToken(result.data.accessToken)
-        
-        // Fetch user data
         const userData = getStoredUser()
-        setUser(userData)
-        setIsLoggedIn(true)
-
-        // Handle navigation based on user role and current path
-        const currentPath = window.location.pathname
-        if (currentPath === "/login" || currentPath === "/signup" || currentPath === "/") {
-          // If user is admin and on login page, redirect to admin dashboard
-          if (userData?.role === 'admin') {
-            router.navigate("/admin")
-          } else {
-            router.navigate("/dashboard")
-          }
-        } else if (currentPath.startsWith('/admin') && userData?.role !== 'admin') {
-          // If user is not admin but trying to access admin pages
-          router.navigate("/dashboard")
+        if (userData) {
+          dispatch({ type: 'SET_AUTH_DATA', payload: { token: result.data.accessToken, user: userData } })
+          handleNavigation(window.location.pathname, userData?.role)
+        } else {
+          dispatch({ type: 'CLEAR_AUTH_DATA' })
         }
       } catch (error) {
-        setAccessToken("")
-        setUser(null)
-        setIsLoggedIn(false)
-        
-        // Handle failed refresh based on current path
+        dispatch({ type: 'CLEAR_AUTH_DATA' })
         const currentPath = window.location.pathname
         if (currentPath.startsWith('/admin') && currentPath !== '/admin/login') {
           router.navigate("/admin/login")
@@ -128,12 +117,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           router.navigate("/login")
         }
       } finally {
-        setIsAuthenticating(false)
+        dispatch({ type: 'SET_AUTHENTICATING', payload: false })
       }
     }
-
     tryRefresh()
   }, [])
 
-  return <AuthContext.Provider value={{ isLoggedIn, login, logout, isAuthenticating, user }}>{children}</AuthContext.Provider>
+  const login = (token: string, userData: User) => {
+    storeAuthData(token, userData)
+    dispatch({ type: 'SET_AUTH_DATA', payload: { token, user: userData } })
+  }
+
+  const logout = async () => {
+    try {
+      await apiClient.post('/auth/logout')
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      clearAuthData()
+      dispatch({ type: 'CLEAR_AUTH_DATA' })
+    }
+  }
+
+  return (
+    <AuthContext.Provider value={{ 
+      isLoggedIn: state.isLoggedIn, 
+      login, 
+      logout, 
+      isAuthenticating: state.isAuthenticating, 
+      user: state.user 
+    }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }

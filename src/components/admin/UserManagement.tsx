@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import type { User } from '../../types/User';
-import { getAllUsers, activateUser, deactivateUser, deleteUser } from '../../services/admin/UserManagementService';
-import { FaEye, FaTrash, FaCheck, FaBan } from 'react-icons/fa';
+import { getAllUsers, activateUser, deactivateUser, deleteUser, addUser, updateUser } from '../../services/admin/UserManagementService';
+import { FaEye, FaTrash, FaCheck, FaBan, FaEdit, FaPlus } from 'react-icons/fa';
+import UserFormModal from './UserFormModal';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -70,6 +74,41 @@ const UserManagement = () => {
     }
   };
 
+  const handleOpenAddModal = () => {
+    setModalMode('add');
+    setEditingUser(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleOpenEditModal = (user: User) => {
+    setModalMode('edit');
+    setEditingUser(user);
+    setIsFormModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsFormModalOpen(false);
+    setEditingUser(null);
+  };
+
+  const handleSubmitUser = async (userData: Partial<User>) => {
+    try {
+      if (modalMode === 'add') {
+        await addUser(userData);
+      } else {
+        if (editingUser?._id) {
+          await updateUser(editingUser._id, userData);
+        }
+      }
+      fetchUsers();
+      handleCloseModal();
+      setError(null);
+    } catch (err) {
+      setError(`Failed to ${modalMode} user`);
+      throw err;
+    }
+  };
+
   const StatCard = ({ title, value, color }: { title: string; value: number; color: string }) => (
     <div className="bg-white p-4 rounded-lg shadow-md">
       <h3 className="text-gray-500 text-sm">{title}</h3>
@@ -128,7 +167,16 @@ const UserManagement = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold mb-6">User Management</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">User Management</h2>
+        <button
+          onClick={handleOpenAddModal}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors"
+        >
+          <FaPlus className="w-4 h-4" />
+          Add New User
+        </button>
+      </div>
       
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -175,6 +223,12 @@ const UserManagement = () => {
                         title="View Details"
                         colorClass="bg-blue-100 text-blue-600 hover:bg-blue-200"
                       />
+                      <ActionButton
+                        onClick={() => handleOpenEditModal(user)}
+                        icon={FaEdit}
+                        title="Edit User"
+                        colorClass="bg-yellow-100 text-yellow-600 hover:bg-yellow-200"
+                      />
                       {user.isActive ? (
                         <ActionButton
                           onClick={() => handleDeactivateUser(user._id)}
@@ -206,6 +260,13 @@ const UserManagement = () => {
       </div>
 
       {selectedUser && <UserDetailsModal user={selectedUser} />}
+      <UserFormModal
+        isOpen={isFormModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitUser}
+        user={editingUser || undefined}
+        mode={modalMode}
+      />
     </div>
   );
 };

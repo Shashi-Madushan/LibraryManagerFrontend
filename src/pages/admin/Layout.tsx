@@ -9,7 +9,13 @@ const AdminLayout = () => {
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
     useEffect(() => {
-        const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+        const handleResize = () => {
+            const newIsDesktop = window.innerWidth >= 1024;
+            setIsDesktop(newIsDesktop);
+            if (newIsDesktop) {
+                setIsSidebarOpen(false);
+            }
+        };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -20,41 +26,29 @@ const AdminLayout = () => {
     const sidebarWidth = isSidebarExpanded ? 288 : 80; // px
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
-            {/* Sidebar */}
-            <aside
-                className={`z-30 transition-transform duration-300 ease-in-out`}
-                style={{
-                    width: isDesktop ? `${sidebarWidth}px` : '0px',
-                    position: isDesktop ? 'fixed' : 'fixed',
-                    left: 0,
-                    top: 0,
-                    height: '100vh',
-                    transform: isDesktop
-                        ? 'translateX(0)'
-                        : isSidebarOpen
-                            ? 'translateX(0)'
-                            : 'translateX(-100%)',
-                }}
-            >
-                <SideBar
-                    isOpen={isDesktop ? true : isSidebarOpen}
-                    onClose={closeSidebar}
-                    onExpandChange={setIsSidebarExpanded}
-                />
-            </aside>
-            
+        <div className="min-h-screen bg-gray-50 flex relative">
             {/* Overlay for mobile */}
             {!isDesktop && isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/30 z-20"
+                    className="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm"
                     onClick={closeSidebar}
                 />
             )}
 
-            {/* Main Content Area */}
+            {/* Sidebar */}
+            <aside
+                className={`fixed inset-y-0 left-0 z-50 transition-all duration-300 ease-in-out ${
+                    isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                }`}
+            >
+                <SideBar
+                    isOpen={true}
+                    onClose={closeSidebar}
+                    onExpandChange={setIsSidebarExpanded}
+                />
+            </aside>            {/* Main Content Area */}
             <div
-                className="flex-1"
+                className="flex-1 min-w-0"
                 style={{
                     marginLeft: isDesktop ? `${sidebarWidth}px` : 0,
                     transition: 'margin-left 0.3s',
@@ -62,9 +56,12 @@ const AdminLayout = () => {
             >
                 <TopBar
                     toggleSidebar={toggleSidebar}
-                    className="fixed top-0 right-0 left-0 z-20"
+                    className={`fixed z-30 right-0 ${isDesktop ? 'left-[80px]' : 'left-0'} ${
+                        isSidebarExpanded ? 'lg:left-[288px]' : ''
+                    }`}
+                    isExpanded={isSidebarExpanded}
                 />
-                <main className="mt-16 transition-all duration-300 ease-in-out">
+                <main className="pt-20 px-4 pb-8 transition-all duration-300 ease-in-out">
                     <Outlet />
                 </main>
             </div>
