@@ -1,13 +1,18 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import SignUpPage from "./pages/SignUpPage";
 import LogIn from "./pages/LogIn";
 import Layout from "./pages/Layout";
 import AdminLayout from "./pages/admin/Layout";
 import AdminLogin from "./pages/admin/Login";
 import AdminRoute from "./components/AdminRoute";
+import UserRoute from "./components/UserRoute";
 import UserManagement from "./components/admin/UserManagement";
 
 const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Navigate to="/login" />,
+    },
     {
         path: "/signup",
         element: <SignUpPage />,
@@ -18,7 +23,25 @@ const router = createBrowserRouter([
     },
     {
         path: "/dashboard",
-        element: <Layout/>,
+        element: (
+            <UserRoute>
+                <Layout/>
+            </UserRoute>
+        ),
+        children: [
+            {
+                path: "",
+                element: <div>User Dashboard</div>,
+            },
+            {
+                path: "profile",
+                element: <div>User Profile</div>,
+            },
+            {
+                path: "settings",
+                element: <div>User Settings</div>,
+            },
+        ]
     },
     {
         path: "/admin",
@@ -32,7 +55,7 @@ const router = createBrowserRouter([
                 element: (
                     <AdminRoute>
                         <AdminLayout />
-                     </AdminRoute>
+                    </AdminRoute>
                 ),
                 children: [
                     {
@@ -55,6 +78,6 @@ const router = createBrowserRouter([
             },
         ],
     }
-])
+]);
 
 export default router;

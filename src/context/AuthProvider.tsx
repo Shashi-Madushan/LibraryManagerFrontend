@@ -72,11 +72,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(userData)
   }
 
-  const logout = () => {
-    clearAuthData()
-    setIsLoggedIn(false)
-    setUser(null)
-    setAccessToken("")
+  const logout = async () => {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      clearAuthData();
+      setIsLoggedIn(false);
+      setUser(null);
+      setAccessToken("");
+     
+    }
   }
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../services/AuthService';
 import { useAuth } from '../../context/UseAuth';
@@ -8,7 +8,18 @@ const AdminLogin = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login: authLogin } = useAuth();
+    const { login: authLogin, isLoggedIn, user } = useAuth();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (isLoggedIn) {
+            if (user?.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/dashboard');
+            }
+        }
+    }, [isLoggedIn, user, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

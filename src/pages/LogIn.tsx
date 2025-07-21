@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaEnvelope, FaLock, FaBookOpen, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { BiLoader } from 'react-icons/bi';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/AuthService';
-
+import { useAuth } from '../context/UseAuth';
 interface LoginForm {
     email: string;
     password: string;
@@ -23,6 +23,7 @@ const LoginSVG = () => (
 
 const LogIn: React.FC = () => {
     const navigate = useNavigate();
+    const { login: authLogin, isLoggedIn, user } = useAuth();
     const [formData, setFormData] = useState<LoginForm>({
         email: '',
         password: ''
@@ -32,6 +33,17 @@ const LogIn: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [fieldErrors, setFieldErrors] = useState<Partial<LoginForm>>({});
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (isLoggedIn) {
+            if (user?.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/dashboard');
+            }
+        }
+    }, [isLoggedIn, user, navigate]);
 
     const validateForm = (): boolean => {
         const errors: Partial<LoginForm> = {};
@@ -60,8 +72,15 @@ const LogIn: React.FC = () => {
 
         setLoading(true);
         try {
-            await login(formData.email, formData.password);
-            navigate('/dashboard');
+            const response = await login(formData.email, formData.password);
+            authLogin(response.accessToken, response.user);
+            
+            // Redirect based on user role
+            if (response.user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError('Invalid email or password');
         } finally {
@@ -170,11 +189,17 @@ const LogIn: React.FC = () => {
                     </form>
 
                     {/* Footer */}
-                    <div className="mt-6 text-center">
+                    <div className="mt-6 text-center space-y-2">
                         <p className="text-sm text-gray-600">
                             Don't have an account?{' '}
                             <Link to="/signup" className="text-indigo-600 hover:text-indigo-500 font-semibold">
                                 Sign Up
+                            </Link>
+                        </p>
+                        <p className="text-sm text-gray-600">
+                            Are you an admin?{' '}
+                            <Link to="/admin/login" className="text-indigo-600 hover:text-indigo-500 font-semibold">
+                                Admin Login
                             </Link>
                         </p>
                     </div>

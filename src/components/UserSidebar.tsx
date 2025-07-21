@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaBook, FaUser, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
-import { logout } from '../services/AuthService';
+import { useAuth } from '../context/UseAuth';
 
 interface SideBarProps {
     isOpen: boolean;
@@ -12,7 +12,7 @@ interface SideBarProps {
 const UserSidebar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const location = useLocation();
-    const navigate = useNavigate();
+    const { logout } = useAuth();
 
     useEffect(() => {
         if (onExpandChange) onExpandChange(isExpanded);
@@ -29,7 +29,6 @@ const UserSidebar = ({ isOpen, onClose, onExpandChange }: SideBarProps) => {
     const handleLogout = async () => {
         try {
             await logout();
-            navigate('/login');
         } catch (error) {
             console.error('Logout failed:', error);
         }
