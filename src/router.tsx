@@ -4,8 +4,9 @@ import LogIn from "./pages/LogIn";
 import Layout from "./pages/Layout";
 import AdminLayout from "./pages/admin/Layout";
 import AdminLogin from "./pages/admin/Login";
-import AdminRoute from "./components/AdminRoute";
+import AdminRoute from "./components/admin/AdminRoute";
 import UserManagement from "./pages/admin/UserManagement";
+import BookManagement from "./pages/admin/BookManagement";
 
 const router = createBrowserRouter([
     {
@@ -41,7 +42,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "books",
-                        element: <div>Books Management</div>,
+                        element: <BookManagement/>,
                     },
                     {
                         path: "users",

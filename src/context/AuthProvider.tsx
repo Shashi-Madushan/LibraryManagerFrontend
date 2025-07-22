@@ -1,9 +1,10 @@
 import { useEffect, useReducer } from "react"
 import { AuthContext } from "./AuthContext"
-import apiClient, { setHeader, refreshTokenRequest } from "../services/ApiClient"
+import apiClient, { setHeader, refreshTokenRequest, createRequestRetrier } from "../services/ApiClient"
 import router from "../router"
 import type { User } from "../types/User"
 import { getStoredAccessToken, getStoredUser, storeAuthData, clearAuthData } from "../util/authStorage"
+import { isTokenExpired } from "../util/tokenUtils"
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -66,8 +67,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const handleRefreshToken = async () => {
     try {
       const result = await refreshTokenRequest()
-      const { accessToken, user } = result.data
-      storeAuthData(accessToken, user)
+      // Update to handle the correct response structure
+      const accessToken = result.data.accessToken
+      const user = getStoredUser() // Keep existing user data
+      storeAuthData(accessToken, user )
+      setHeader(accessToken)
       dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user } })
       return true
     } catch (error) {
@@ -79,18 +83,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const interceptor = apiClient.interceptors.response.use(
-      response => response,
-      async error => {
-        if (error.response?.status === 401 && !error.config._retry) {
-          error.config._retry = true
-          return (await handleRefreshToken())
-            ? apiClient(error.config)
-            : router.navigate(window.location.pathname.startsWith('/admin') ? "/admin/login" : "/login")
-        }
-        return Promise.reject(error)
-      }
-    )
-    return () => apiClient.interceptors.response.eject(interceptor)
+        response => response,
+        createRequestRetrier(handleRefreshToken)
+    );
+    return () => apiClient.interceptors.response.eject(interceptor);
   }, [])
 
   useEffect(() => {
@@ -98,30 +94,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [state.accessToken])
 
   useEffect(() => {
-    const tryRefresh = async () => {
-      try {
-        const result = await apiClient.post("/auth/refresh-token")
-        const userData = getStoredUser()
-        if (userData) {
-          dispatch({ type: 'SET_AUTH_DATA', payload: { token: result.data.accessToken, user: userData } })
-          handleNavigation(window.location.pathname, userData?.role)
-        } else {
-          dispatch({ type: 'CLEAR_AUTH_DATA' })
-        }
-      } catch (error) {
-        dispatch({ type: 'CLEAR_AUTH_DATA' })
-        const currentPath = window.location.pathname
-        if (currentPath.startsWith('/admin') && currentPath !== '/admin/login') {
-          router.navigate("/admin/login")
-        } else if (currentPath !== '/login' && currentPath !== '/signup') {
-          router.navigate("/login")
-        }
-      } finally {
-        dispatch({ type: 'SET_AUTHENTICATING', payload: false })
+    const initializeAuth = async () => {
+      const currentToken = getStoredAccessToken();
+      const userData = getStoredUser();
+      
+      if (!currentToken || !userData) {
+        dispatch({ type: 'CLEAR_AUTH_DATA' });
+        dispatch({ type: 'SET_AUTHENTICATING', payload: false });
+        return;
       }
-    }
-    tryRefresh()
+
+      if (!isTokenExpired(currentToken)) {
+        // Token is still valid, just set the auth data
+        dispatch({ type: 'SET_AUTH_DATA', payload: { token: currentToken, user: userData } });
+        handleNavigation(window.location.pathname, userData?.role);
+        dispatch({ type: 'SET_AUTHENTICATING', payload: false });
+        return;
+      }
+
+      // Only try refresh if token is expired
+      tryRefresh();
+    };
+
+    initializeAuth();
   }, [])
+
+  const tryRefresh = async () => {
+    try {
+      const result = await apiClient.post("/auth/refresh-token")
+      const userData = getStoredUser()
+      if (userData) {
+        const accessToken = result.data.accessToken
+        dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user: userData } })
+        handleNavigation(window.location.pathname, userData?.role)
+      } else {
+        dispatch({ type: 'CLEAR_AUTH_DATA' })
+      }
+    } catch (error) {
+      dispatch({ type: 'CLEAR_AUTH_DATA' })
+      const currentPath = window.location.pathname
+      if (currentPath.startsWith('/admin') && currentPath !== '/admin/login') {
+        router.navigate("/admin/login")
+      } else if (currentPath !== '/login' && currentPath !== '/signup') {
+        router.navigate("/login")
+      }
+    } finally {
+      dispatch({ type: 'SET_AUTHENTICATING', payload: false })
+    }
+  }
 
   const login = (token: string, userData: User) => {
     storeAuthData(token, userData)

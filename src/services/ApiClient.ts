@@ -26,4 +26,24 @@ if (storedToken) {
 
 export const refreshTokenRequest = () => apiClient.post("/auth/refresh-token")
 
+export const createRequestRetrier = (refreshTokenFn: () => Promise<boolean>) => {
+  return async (error: any) => {
+    const { config: originalRequest, response } = error
+
+    if (response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      try {
+        const refreshSuccess = await refreshTokenFn()
+        if (refreshSuccess) {
+          // Retry the original request with new token
+          return apiClient(originalRequest)
+        }
+      } catch (refreshError) {
+        return Promise.reject(refreshError)
+      }
+    }
+    return Promise.reject(error)
+  }
+}
+
 export default apiClient

@@ -31,3 +31,13 @@ export const logout = async (): Promise<void> => {
         throw error;
     }
 }
+
+export const refreshToken = async (): Promise<AuthResponse> => {
+    try {
+        const response = await apiClient.post<AuthResponse>('/auth/refresh-token');
+        return response.data;
+    } catch (error) {
+        console.error("Token refresh failed:", error);
+        throw error;
+    }
+}

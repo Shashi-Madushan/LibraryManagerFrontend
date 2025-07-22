@@ -315,7 +315,11 @@ const UserManagement = () => {
         isOpen={isFormModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSubmitUser}
-        user={editingUser || undefined}
+        user={
+          editingUser
+            ? { ...editingUser, password: '' }
+            : undefined
+        }
         mode={modalMode}
       />
       {successData && <SuccessModal data={successData} onClose={() => setSuccessData(null)} />}
