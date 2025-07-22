@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { getAllBooks, addBook, updateBook, deleteBook } from '../../services/admin/BookManagementService';
 import BookCard from '../../components/BookCard';
 import BookListView from '../../components/BookListView';
-import AddBookModal from '../../components/AddBookModal';
-import EditBookModal from '../../components/EditBookModal';
+import AddBookModal from '../../components/admin/AddBookModal';
+import EditBookModal from '../../components/admin/EditBookModal';
 import type { Book } from '../../types/Book';
 import { FaBookOpen, FaPlus, FaThLarge, FaList } from 'react-icons/fa';
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IoClose } from 'react-icons/io5';
-import type { Book } from '../types/Book';
+import type { Book } from '../../types/Book';
 
 interface EditBookModalProps {
     book: Book | null;
