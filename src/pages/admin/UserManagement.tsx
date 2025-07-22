@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import type { User } from '../../types/User';
 import { getAllUsers, activateUser, deactivateUser, deleteUser, addUser, updateUser } from '../../services/admin/UserManagementService';
-import { FaEye, FaTrash, FaCheck, FaBan, FaEdit, FaPlus } from 'react-icons/fa';
+import { FaEye, FaTrash, FaCheck, FaBan, FaEdit, FaPlus, FaSearch } from 'react-icons/fa';
 import UserFormModal from '../../components/admin/UserFormModal';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -13,10 +14,27 @@ const UserManagement = () => {
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [successData, setSuccessData] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [useServerSearch, setUseServerSearch] = useState(false);
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Search and filter users
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredUsers(users);
+      return;
+    }
+
+    const searchTermLower = searchTerm.toLowerCase();
+    const filtered = users.filter((user) => 
+      user.email.toLowerCase().includes(searchTermLower) ||
+      `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTermLower)
+    );
+    setFilteredUsers(filtered);
+  }, [searchTerm, users]);
 
   const fetchUsers = async () => {
     try {
@@ -26,15 +44,18 @@ const UserManagement = () => {
       
       if (response && response.users) {
         setUsers(response.users);
+        setFilteredUsers(response.users);
         setError(null);
       } else {
         setUsers([]);
+        setFilteredUsers([]);
         setError('Invalid response format');
       }
     } catch (err) {
       console.error('Error fetching users:', err);
       setError('Failed to fetch users');
       setUsers([]);
+      setFilteredUsers([]);
     } finally {
       setLoading(false);
     }
@@ -218,15 +239,45 @@ const UserManagement = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">User Management</h2>
-        <button
-          onClick={handleOpenAddModal}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors"
-        >
-          <FaPlus className="w-4 h-4" />
-          Add New User
-        </button>
+      <div className="space-y-4 mb-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">User Management</h2>
+          <button
+            onClick={handleOpenAddModal}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors"
+          >
+            <FaPlus className="w-4 h-4" />
+            Add New User
+          </button>
+        </div>
+
+        {/* Search Section */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-white p-4 rounded-lg shadow">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <input
+              type="checkbox"
+              id="serverSearch"
+              checked={useServerSearch}
+              onChange={(e) => setUseServerSearch(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            />
+            <label htmlFor="serverSearch" className="text-sm text-gray-700">
+              Search from database
+            </label>
+          </div>
+        </div>
       </div>
       
       {/* Statistics Cards */}
@@ -251,7 +302,7 @@ const UserManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {users?.map((user) => (
+              {filteredUsers.map((user) => (
                 <tr key={user.email} className="border-t border-gray-200 hover:bg-gray-50">
                   <td className="px-4 sm:px-6 py-3 text-xs sm:text-sm">{user.username}</td>
                   <td className="px-4 sm:px-6 py-3 text-xs sm:text-sm">{user.email}</td>
