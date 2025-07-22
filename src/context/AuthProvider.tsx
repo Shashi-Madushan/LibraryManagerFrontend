@@ -67,14 +67,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const handleRefreshToken = async () => {
     try {
       const result = await refreshTokenRequest()
-      // Update to handle the correct response structure
-      const accessToken = result.data.accessToken
-      const user = getStoredUser() // Keep existing user data
-      storeAuthData(accessToken, user )
+      const { accessToken, user } = result.data
+      if (!accessToken) {
+        throw new Error('No access token received')
+      }
+      storeAuthData(accessToken, user || getStoredUser())
       setHeader(accessToken)
-      dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user } })
+      dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user: user || getStoredUser() } })
       return true
     } catch (error) {
+      console.error('Token refresh failed:', error)
       clearAuthData()
       dispatch({ type: 'CLEAR_AUTH_DATA' })
       return false
@@ -95,25 +97,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const currentToken = getStoredAccessToken();
-      const userData = getStoredUser();
-      
-      if (!currentToken || !userData) {
+      try {
+        const currentToken = getStoredAccessToken();
+        const userData = getStoredUser();
+        
+        if (!currentToken || !userData) {
+          dispatch({ type: 'CLEAR_AUTH_DATA' });
+          return;
+        }
+
+        if (!isTokenExpired(currentToken)) {
+          dispatch({ type: 'SET_AUTH_DATA', payload: { token: currentToken, user: userData } });
+          setHeader(currentToken);
+          handleNavigation(window.location.pathname, userData?.role);
+          return;
+        }
+
+        await tryRefresh();
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
         dispatch({ type: 'CLEAR_AUTH_DATA' });
+      } finally {
         dispatch({ type: 'SET_AUTHENTICATING', payload: false });
-        return;
       }
-
-      if (!isTokenExpired(currentToken)) {
-        // Token is still valid, just set the auth data
-        dispatch({ type: 'SET_AUTH_DATA', payload: { token: currentToken, user: userData } });
-        handleNavigation(window.location.pathname, userData?.role);
-        dispatch({ type: 'SET_AUTHENTICATING', payload: false });
-        return;
-      }
-
-      // Only try refresh if token is expired
-      tryRefresh();
     };
 
     initializeAuth();
@@ -121,16 +127,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const tryRefresh = async () => {
     try {
-      const result = await apiClient.post("/auth/refresh-token")
-      const userData = getStoredUser()
-      if (userData) {
-        const accessToken = result.data.accessToken
-        dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user: userData } })
-        handleNavigation(window.location.pathname, userData?.role)
-      } else {
-        dispatch({ type: 'CLEAR_AUTH_DATA' })
+      const result = await refreshTokenRequest()
+      const { accessToken, user: newUserData } = result.data
+      const userData = newUserData || getStoredUser()
+      
+      if (!accessToken || !userData) {
+        throw new Error('Invalid refresh response')
       }
+
+      storeAuthData(accessToken, userData)
+      setHeader(accessToken)
+      dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user: userData } })
+      handleNavigation(window.location.pathname, userData?.role)
     } catch (error) {
+      console.error('Token refresh failed:', error)
+      clearAuthData()
       dispatch({ type: 'CLEAR_AUTH_DATA' })
       const currentPath = window.location.pathname
       if (currentPath.startsWith('/admin') && currentPath !== '/admin/login') {
@@ -138,8 +149,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else if (currentPath !== '/login' && currentPath !== '/signup') {
         router.navigate("/login")
       }
-    } finally {
-      dispatch({ type: 'SET_AUTHENTICATING', payload: false })
     }
   }
 

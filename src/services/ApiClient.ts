@@ -27,23 +27,55 @@ if (storedToken) {
 export const refreshTokenRequest = () => apiClient.post("/auth/refresh-token")
 
 export const createRequestRetrier = (refreshTokenFn: () => Promise<boolean>) => {
+  let isRefreshing = false;
+  let failedQueue: Array<{
+    resolve: (value?: unknown) => void;
+    reject: (reason?: any) => void;
+  }> = [];
+
+  const processQueue = (error: any = null) => {
+    failedQueue.forEach((prom) => {
+      if (error) {
+        prom.reject(error);
+      } else {
+        prom.resolve();
+      }
+    });
+    failedQueue = [];
+  };
+
   return async (error: any) => {
-    const { config: originalRequest, response } = error
+    const { config: originalRequest, response } = error;
 
     if (response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-      try {
-        const refreshSuccess = await refreshTokenFn()
-        if (refreshSuccess) {
-          // Retry the original request with new token
-          return apiClient(originalRequest)
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        try {
+          await new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          });
+          return apiClient(originalRequest);
+        } catch (err) {
+          return Promise.reject(err);
         }
+      }
+
+      isRefreshing = true;
+
+      try {
+        await refreshTokenFn();
+        processQueue();
+        return apiClient(originalRequest);
       } catch (refreshError) {
-        return Promise.reject(refreshError)
+        processQueue(refreshError);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
-    return Promise.reject(error)
-  }
+    return Promise.reject(error);
+  };
 }
 
 export default apiClient
