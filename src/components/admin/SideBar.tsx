@@ -40,7 +40,7 @@ const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
         { icon: <FaBook />, label: 'Books', path: '/admin/books' },
         { icon: <FaUsers />, label: 'Users', path: '/admin/users' },
         { icon: <FaExchangeAlt />, label: 'Lendings', path: '/admin/lendings' },
-        { icon: <FaHistory />, label: 'Logs', path: '/admin/logs' },
+        { icon: <FaHistory />, label: 'Audit Logs', path: '/admin/audit-logs' },
         { icon: <FaCog />, label: 'Settings', path: '/admin/settings' },
     ];
 

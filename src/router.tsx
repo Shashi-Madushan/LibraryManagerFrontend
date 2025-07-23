@@ -7,6 +7,7 @@ import AdminLogin from "./pages/admin/Login";
 import AdminRoute from "./components/admin/AdminRoute";
 import UserManagement from "./pages/admin/UserManagement";
 import BookManagement from "./pages/admin/BookManagement";
+import AuditLogs from "./pages/admin/AuditLogs";
 
 const router = createBrowserRouter([
     {
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
                     {
                         path: "settings",
                         element: <div>Settings</div>,
+                    },
+                    {
+                        path: "audit-logs",
+                        element: <AuditLogs />,
                     },
                 ],
             },
