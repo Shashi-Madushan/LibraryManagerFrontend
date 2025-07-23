@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { AuditLog, DateRange } from '../../services/admin/AuditLogService';
+import type { AuditLog, DateRange } from '../../types/AuditLog';
 import { AuditLogService } from '../../services/admin/AuditLogService';
 import AuditLogTable from '../../components/admin/AuditLogTable';
 

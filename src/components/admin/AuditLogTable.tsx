@@ -1,5 +1,5 @@
 import React from 'react';
-import type { AuditLog, DateRange } from '../../services/admin/AuditLogService';
+import type { AuditLog, DateRange } from '../../types/AuditLog';
 import { format } from 'date-fns';
 
 interface AuditLogTableProps {
