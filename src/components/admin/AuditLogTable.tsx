@@ -5,14 +5,22 @@ import { format } from 'date-fns';
 interface AuditLogTableProps {
     logs: AuditLog[];
     selectedRange: DateRange;
+    selectedAction: string;
+    selectedTarget: string;
     onRangeChange: (range: DateRange) => void;
+    onActionChange: (action: string) => void;
+    onTargetChange: (target: string) => void;
     isLoading?: boolean;
 }
 
 const AuditLogTable: React.FC<AuditLogTableProps> = ({
     logs,
     selectedRange,
+    selectedAction,
+    selectedTarget,
     onRangeChange,
+    onActionChange,
+    onTargetChange,
     isLoading = false
 }) => {
     const rangeOptions: { value: DateRange; label: string }[] = [
@@ -21,23 +29,72 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
         { value: 'month', label: 'Last 30 Days' }
     ];
 
+    const actionOptions = [
+        { value: '', label: 'All Actions' },
+        { value: 'CREATE', label: 'Create' },
+        { value: 'UPDATE', label: 'Update' },
+        { value: 'DELETE', label: 'Delete' },
+    ];
+
+    const targetOptions = [
+        { value: '', label: 'All Types' },
+        { value: 'USER', label: 'Users' },
+        { value: 'BOOK', label: 'Books' },
+        { value: 'CATEGORY', label: 'Categories' },
+    ];
+
     return (
         <div className="w-full">
-            <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <h2 className="text-xl font-semibold">Audit Logs</h2>
-                <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium">Time Range:</label>
-                    <select
-                        value={selectedRange}
-                        onChange={(e) => onRangeChange(e.target.value as DateRange)}
-                        className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        {rangeOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
+            <div className="mb-6 space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 className="text-xl font-semibold">Audit Logs</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex flex-col space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Time Range</label>
+                        <select
+                            value={selectedRange}
+                            onChange={(e) => onRangeChange(e.target.value as DateRange)}
+                            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        >
+                            {rangeOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex flex-col space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Action</label>
+                        <select
+                            value={selectedAction}
+                            onChange={(e) => onActionChange(e.target.value)}
+                            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        >
+                            {actionOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex flex-col space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Type</label>
+                        <select
+                            value={selectedTarget}
+                            onChange={(e) => onTargetChange(e.target.value)}
+                            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        >
+                            {targetOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </div>
 
