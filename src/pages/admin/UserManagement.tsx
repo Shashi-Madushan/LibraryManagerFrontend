@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import type { User } from '../../types/User';
 import { getAllUsers, activateUser, deactivateUser, deleteUser, addUser, updateUser } from '../../services/admin/UserManagementService';
-import { FaEye, FaTrash, FaCheck, FaBan, FaEdit, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaEye, FaTrash, FaCheck, FaBan, FaEdit, FaPlus } from 'react-icons/fa';
 import UserFormModal from '../../components/admin/UserFormModal';
 
 const UserManagement = () => {
+  // Get search/filter state from layout
+  const { searchTerm, useServerSearch } = useOutletContext<{ searchTerm: string; useServerSearch: boolean }>();
+
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,14 +18,11 @@ const UserManagement = () => {
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [successData, setSuccessData] = useState<any>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [useServerSearch, setUseServerSearch] = useState(false);
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Search and filter users
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredUsers(users);
@@ -243,53 +244,6 @@ const UserManagement = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">User Management</h2>
         </div>
-        
-        {/* Remove the existing Add New User button from here */}
-
-        {/* Search Section */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-gray-50/80 rounded-2xl shadow-sm p-3">
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-              <div className="relative flex-1 w-full max-w-xl">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaSearch className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl
-                  leading-5 bg-white/80 placeholder-gray-400 focus:outline-none focus:border-indigo-300 
-                  focus:ring-0 text-sm transition-colors"
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-                  >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-xl border border-gray-200">
-                <input
-                  type="checkbox"
-                  id="serverSearch"
-                  checked={useServerSearch}
-                  onChange={(e) => setUseServerSearch(e.target.checked)}
-                  className="h-4 w-4 text-indigo-500 border-gray-300 
-                  rounded cursor-pointer transition-colors"
-                />
-                <label htmlFor="serverSearch" className="text-xs text-gray-600 cursor-pointer select-none whitespace-nowrap">
-                  Database search
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       
       {/* Statistics Cards */}
@@ -394,6 +348,10 @@ const UserManagement = () => {
     </div>
   );
 };
+
+
+
+
 
 export default UserManagement;
 

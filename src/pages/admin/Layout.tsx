@@ -7,6 +7,8 @@ const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [useServerSearch, setUseServerSearch] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
@@ -46,7 +48,8 @@ const AdminLayout = () => {
                     onClose={closeSidebar}
                     onExpandChange={setIsSidebarExpanded}
                 />
-            </aside>            {/* Main Content Area */}
+            </aside>
+            {/* Main Content Area */}
             <div
                 className="flex-1 min-w-0"
                 style={{
@@ -60,9 +63,13 @@ const AdminLayout = () => {
                         isSidebarExpanded ? 'lg:left-[288px]' : ''
                     }`}
                     isExpanded={isSidebarExpanded}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    useServerSearch={useServerSearch}
+                    setUseServerSearch={setUseServerSearch}
                 />
                 <main className="pt-20 px-4 pb-8 transition-all duration-300 ease-in-out">
-                    <Outlet />
+                    <Outlet context={{ searchTerm, useServerSearch }} />
                 </main>
             </div>
         </div>

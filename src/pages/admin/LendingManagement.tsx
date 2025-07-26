@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { getLendings, returnBook } from "../../services/admin/LendingManagementService";
 import type { ILending } from "../../types/Lending";
-import { FaSearch, FaSyncAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaSyncAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 
 const LendingManagement = () => {
+    // Get search/filter state from layout
+    const { searchTerm, useServerSearch } = useOutletContext<{ searchTerm: string; useServerSearch: boolean }>();
+
     const [lendings, setLendings] = useState<ILending[]>([]);
     const [filteredLendings, setFilteredLendings] = useState<ILending[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
     const [returningId, setReturningId] = useState<string | null>(null);
     const [returnLoading, setReturnLoading] = useState(false);
@@ -71,38 +75,6 @@ const LendingManagement = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
- 
-            {/* Search Section */}
-            <div className="max-w-2xl mx-auto mb-6">
-                <div className="bg-gray-50/80 rounded-2xl shadow-sm p-3">
-                    <div className="flex flex-col sm:flex-row gap-3 items-center">
-                        <div className="relative flex-1 w-full max-w-xl">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <FaSearch className="h-4 w-4 text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search by user, book, author..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="block w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl
-                                leading-5 bg-white/80 placeholder-gray-400 focus:outline-none focus:border-blue-300 
-                                focus:ring-0 text-sm transition-colors"
-                            />
-                            {searchTerm && (
-                                <button
-                                    onClick={() => setSearchTerm('')}
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-                                >
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
             {loading ? (
                 <div className="flex justify-center items-center py-12">
                     <span className="text-gray-500 text-lg">Loading...</span>
