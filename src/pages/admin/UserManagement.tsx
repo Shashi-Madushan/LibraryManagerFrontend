@@ -150,7 +150,7 @@ const UserManagement = () => {
   const inactiveUsers = totalUsers - activeUsers;
 
   const UserDetailsModal = ({ user }: { user: User }) => (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-10">
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full transform transition-all">
         <h3 className="text-2xl font-bold text-gray-800 mb-6">User Details</h3>
         <div className="space-y-4">
@@ -200,7 +200,7 @@ const UserManagement = () => {
   );
 
   const SuccessModal = ({ data, onClose }: { data: any; onClose: () => void }) => (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-10">
       <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
@@ -386,7 +386,7 @@ const UserManagement = () => {
       {/* Add the floating action button */}
       <button
         onClick={handleOpenAddModal}
-        className="fixed right-8 bottom-8 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700  flex items-center justify-center z-50 hover:scale-110 transform transition-transform"
+        className="fixed right-8 bottom-8 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700  flex items-center justify-center z-10 hover:scale-110 transform transition-transform"
         title="Add New User"
       >
         <FaPlus className="w-6 h-6" />

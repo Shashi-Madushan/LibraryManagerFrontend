@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { FaPlus, FaSearch, FaArrowRight } from 'react-icons/fa';
 import { getUserByEmail } from '../../services/admin/UserManagementService';
 import { getBookByName } from '../../services/admin/BookManagementService';
-
+import { lendBook } from '../../services/admin/LendingManagementService';
 import type { User } from '../../types/User';
 import type { Book } from '../../types/Book';
+
 
 const DashboardPage = () => {
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -84,9 +85,19 @@ const DashboardPage = () => {
     };
 
     // Lend book
-    const handleLendBook = () => {
+    const handleLendBook = async () => {
         if (!selectedUser || !selectedBook || !lendingDays) return;
-        alert(`Lending "${selectedBook.title}" to ${selectedUser.email} for ${lendingDays} days.`);
+        try {
+            const data = {
+                userId: selectedUser._id,
+                bookId: selectedBook._id,
+                lendigTime: lendingDays,
+            };
+            await lendBook(data);
+            alert(`Successfully lent "${selectedBook.title}" to ${selectedUser.email} for ${lendingDays} days.`);
+        } catch (error) {
+            alert('Failed to lend book. Please try again.');
+        }
         setIsBookModalOpen(false);
         setSelectedUser(null);
         setSelectedBook(null);
@@ -100,7 +111,7 @@ const DashboardPage = () => {
             {/* Floating Add Button */}
             <button
                 onClick={handleAddButtonClick}
-                className="fixed right-8 bottom-8 px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-lg hover:bg-indigo-700 flex items-center justify-center z-50 hover:scale-105 transition-transform"
+                className="fixed right-8 bottom-8 px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-lg hover:bg-indigo-700 flex items-center justify-center z-10 hover:scale-105 transition-transform"
                 title="Add"
             >
                 <FaPlus className="w-5 h-5 mr-2" />
@@ -109,7 +120,7 @@ const DashboardPage = () => {
 
             {/* User Search Modal */}
             {isUserModalOpen && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10">
                     <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full relative">
                         <button
                             onClick={() => setIsUserModalOpen(false)}
@@ -177,7 +188,7 @@ const DashboardPage = () => {
 
             {/* Book Search & Lend Modal */}
             {isBookModalOpen && selectedUser && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10">
                     <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full relative">
                         <button
                             onClick={() => setIsBookModalOpen(false)}

@@ -30,7 +30,7 @@ const AdminLayout = () => {
             {/* Overlay for mobile */}
             {!isDesktop && isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm"
+                    className="fixed inset-0 bg-black/30 z-10 backdrop-blur-sm"
                     onClick={closeSidebar}
                 />
             )}
@@ -56,7 +56,7 @@ const AdminLayout = () => {
             >
                 <TopBar
                     toggleSidebar={toggleSidebar}
-                    className={`fixed z-30 right-0 ${isDesktop ? 'left-[80px]' : 'left-0'} ${
+                    className={`fixed z-20 right-0 ${isDesktop ? 'left-[80px]' : 'left-0'} ${
                         isSidebarExpanded ? 'lg:left-[288px]' : ''
                     }`}
                     isExpanded={isSidebarExpanded}

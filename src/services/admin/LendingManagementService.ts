@@ -3,7 +3,7 @@ import apiClient from "../ApiClient";
 // Get lending history for a user (authenticated users)
 export const getUserLendingHistory = async (userId: string) => {
     try {
-        const response = await apiClient.get(`/lending/user/${userId}`);
+        const response = await apiClient.get(`/lendings/user/${userId}`);
         return response;
     } catch (error) {
         // Handle error as needed
@@ -14,7 +14,7 @@ export const getUserLendingHistory = async (userId: string) => {
 // Lend a book (admin only)
 export const lendBook = async (data: any) => {
     try {
-        const response = await apiClient.post('/lending/lend', data);
+        const response = await apiClient.post('/lendings/lend', data);
         return response;
     } catch (error) {
         throw error;
@@ -22,9 +22,9 @@ export const lendBook = async (data: any) => {
 };
 
 // Return a book (admin only)
-export const returnBook = async (lendingId: string, data: any) => {
+export const returnBook = async (lendingId: string) => {
     try {
-        const response = await apiClient.put(`/lending/return/${lendingId}`, data);
+        const response = await apiClient.put(`/lendings/return/${lendingId}`);
         return response;
     } catch (error) {
         throw error;
@@ -34,7 +34,7 @@ export const returnBook = async (lendingId: string, data: any) => {
 // Get all lendings (admin only)
 export const getLendings = async () => {
     try {
-        const response = await apiClient.get('/lending/');
+        const response = await apiClient.get('/lendings/');
         return response;
     } catch (error) {
         throw error;
@@ -44,7 +44,7 @@ export const getLendings = async () => {
 // Get lending history for a book (admin only)
 export const getBookLendingHistory = async (bookId: string) => {
     try {
-        const response = await apiClient.get(`/lending/book/${bookId}`);
+        const response = await apiClient.get(`/lendings/book/${bookId}`);
         return response;
     } catch (error) {
         throw error;
@@ -54,7 +54,7 @@ export const getBookLendingHistory = async (bookId: string) => {
 // Get overdue lendings (admin only)
 export const getOverdueLendings = async () => {
     try {
-        const response = await apiClient.get('/lending/overdue');
+        const response = await apiClient.get('/lendings/overdue');
         return response;
     } catch (error) {
         throw error;

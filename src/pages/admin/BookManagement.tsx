@@ -212,7 +212,7 @@ const BookManagement: React.FC = () => {
             {/* Add the floating action button */}
             <button
                 onClick={() => setIsModalOpen(true)}
-                className="fixed right-8 bottom-8 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600  flex items-center justify-center z-50 hover:scale-110 transform transition-transform"
+                className="fixed right-8 bottom-8 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600  flex items-center justify-center z-10 hover:scale-110 transform transition-transform"
                 title="Add New Book"
             >
                 <FaPlus className="w-6 h-6" />
