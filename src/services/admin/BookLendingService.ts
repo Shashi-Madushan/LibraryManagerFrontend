@@ -2,30 +2,54 @@ import apiClient from "../ApiClient";
 
 // Get user's lending history
 export const getUserLendingHistory = async (userId: string) => {
-    return await apiClient.get(`/lending/user/${userId}`);
+    try {
+        return await apiClient.get(`/lending/user/${userId}`);
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Lend a book to a user
 export const lendBook = async (data: { userId: string; bookId: string; dueDate: string }) => {
-    return await apiClient.post('/lending/lend', data);
+    try {
+        return await apiClient.post('/lending/lend', data);
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Return a borrowed book
 export const returnBook = async (lendingId: string) => {
-    return await apiClient.put(`/lending/return/${lendingId}`);
+    try {
+        return await apiClient.put(`/lending/return/${lendingId}`);
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Get all lendings
 export const getLendings = async () => {
-    return await apiClient.get('/lending');
+    try {
+        return await apiClient.get('/lending');
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Get lending history for a specific book
 export const getBookLendingHistory = async (bookId: string) => {
-    return await apiClient.get(`/lending/book/${bookId}`);
+    try {
+        return await apiClient.get(`/lending/book/${bookId}`);
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Get all overdue lendings
 export const getOverdueLendings = async () => {
-    return await apiClient.get('/lending/overdue');
+    try {
+        return await apiClient.get('/lending/overdue');
+    } catch (error) {
+        throw error;
+    }
 };

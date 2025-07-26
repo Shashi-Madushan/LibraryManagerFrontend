@@ -8,6 +8,7 @@ import AdminRoute from "./components/admin/AdminRoute";
 import UserManagement from "./pages/admin/UserManagement";
 import BookManagement from "./pages/admin/BookManagement";
 import AuditLogs from "./pages/admin/AuditLogs";
+import  DashboardPage from "./pages/admin/DashboardPage";
 
 const router = createBrowserRouter([
     {
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: "",
-                        element: <div>Admin Dashboard</div>,
+                        element: <DashboardPage />,
                     },
                     {
                         path: "books",

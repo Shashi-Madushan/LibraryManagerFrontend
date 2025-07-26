@@ -242,40 +242,52 @@ const UserManagement = () => {
       <div className="space-y-4 mb-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">User Management</h2>
-          <button
-            onClick={handleOpenAddModal}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors"
-          >
-            <FaPlus className="w-4 h-4" />
-            Add New User
-          </button>
         </div>
+        
+        {/* Remove the existing Add New User button from here */}
 
         {/* Search Section */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-white p-4 rounded-lg shadow">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaSearch className="h-5 w-5 text-gray-400" />
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-gray-50/80 rounded-2xl shadow-sm p-3">
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
+              <div className="relative flex-1 w-full max-w-xl">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaSearch className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="block w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl
+                  leading-5 bg-white/80 placeholder-gray-400 focus:outline-none focus:border-indigo-300 
+                  focus:ring-0 text-sm transition-colors"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-xl border border-gray-200">
+                <input
+                  type="checkbox"
+                  id="serverSearch"
+                  checked={useServerSearch}
+                  onChange={(e) => setUseServerSearch(e.target.checked)}
+                  className="h-4 w-4 text-indigo-500 border-gray-300 
+                  rounded cursor-pointer transition-colors"
+                />
+                <label htmlFor="serverSearch" className="text-xs text-gray-600 cursor-pointer select-none whitespace-nowrap">
+                  Database search
+                </label>
+              </div>
             </div>
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-            />
-          </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <input
-              type="checkbox"
-              id="serverSearch"
-              checked={useServerSearch}
-              onChange={(e) => setUseServerSearch(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-            <label htmlFor="serverSearch" className="text-sm text-gray-700">
-              Search from database
-            </label>
           </div>
         </div>
       </div>
@@ -366,14 +378,19 @@ const UserManagement = () => {
         isOpen={isFormModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSubmitUser}
-        user={
-          editingUser
-            ? { ...editingUser, password: '' }
-            : undefined
-        }
+        user={editingUser ? { ...editingUser, password: '' } : undefined}
         mode={modalMode}
       />
       {successData && <SuccessModal data={successData} onClose={() => setSuccessData(null)} />}
+
+      {/* Add the floating action button */}
+      <button
+        onClick={handleOpenAddModal}
+        className="fixed right-8 bottom-8 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700  flex items-center justify-center z-50 hover:scale-110 transform transition-transform"
+        title="Add New User"
+      >
+        <FaPlus className="w-6 h-6" />
+      </button>
     </div>
   );
 };

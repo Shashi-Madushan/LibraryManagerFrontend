@@ -1,6 +1,7 @@
-import { FaBars, FaBell, FaUserCircle, FaSearch } from 'react-icons/fa';
+import { FaBars, FaBell, FaUserCircle } from 'react-icons/fa';
 import { useState } from 'react';
 import { useAuth } from '../../context/UseAuth';
+import { getStoredUser } from '../../util/authStorage';
 
 interface TopBarProps {
     toggleSidebar: () => void;
@@ -11,12 +12,8 @@ interface TopBarProps {
 const TopBar = ({ toggleSidebar, className }: TopBarProps) => {
     const {logout} = useAuth();
     const [showUserPopup, setShowUserPopup] = useState(false);
-    const adminData = {
-        name: "John Doe",
-        email: "john.doe@admin.com",
-        role: "Super Admin",
-        lastLogin: "2024-01-20 09:30 AM"
-    };
+    const userData = getStoredUser();
+    const fullName = userData ? `${userData.firstName} ${userData.lastName}` : '';
 
     return (
         <div className={`bg-white/70 backdrop-blur-xl mx-4 mt-4 h-14 flex items-center justify-between px-4 rounded-xl shadow-sm ${className || ''}`}>
@@ -30,7 +27,7 @@ const TopBar = ({ toggleSidebar, className }: TopBarProps) => {
                 </button>
                 
                 {/* Search Bar - Full width on mobile */}
-                <div className="relative flex-1 lg:w-64">
+                {/* <div className="relative flex-1 lg:w-64">
                     <div className="flex items-center bg-gray-50/50 rounded-xl px-3 py-2 w-full">
                         <FaSearch className="text-gray-400 w-4 h-4 flex-shrink-0" />
                         <input 
@@ -39,7 +36,7 @@ const TopBar = ({ toggleSidebar, className }: TopBarProps) => {
                             className="bg-transparent border-none focus:outline-none ml-2 w-full text-sm text-gray-600"
                         />
                     </div>
-                </div>
+                </div> */}
             </div>
 
             <div className="flex items-center gap-2">
@@ -57,18 +54,19 @@ const TopBar = ({ toggleSidebar, className }: TopBarProps) => {
                         onClick={() => setShowUserPopup(!showUserPopup)}
                     >
                         <FaUserCircle className="h-6 w-6 text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700 hidden sm:block">{adminData.name}</span>
+                        <span className="text-sm font-medium text-gray-700 hidden sm:block">{fullName}</span>
                     </div>
 
                     {showUserPopup && (
                         <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg py-2 z-50 border border-gray-100">
                             <div className="px-4 py-2 border-b border-gray-100">
-                                <p className="font-medium text-gray-800">{adminData.name}</p>
-                                <p className="text-sm text-gray-600">{adminData.email}</p>
+                                <p className="font-medium text-gray-800">{fullName}</p>
+                                <p className="text-sm text-gray-600">@{userData?.username}</p>
+                                <p className="text-sm text-gray-600">{userData?.email}</p>
                             </div>
                             <div className="px-4 py-2">
-                                <p className="text-sm text-gray-600">Role: {adminData.role}</p>
-                                <p className="text-sm text-gray-600">Last Login: {adminData.lastLogin}</p>
+                                <p className="text-sm text-gray-600">Role: {userData?.role}</p>
+                                <p className="text-sm text-gray-600">Status: {userData?.isActive ? 'Active' : 'Inactive'}</p>
                             </div>
                             <div className="border-t border-gray-100 mt-2 pt-2 px-4">
                                 <button 
@@ -90,3 +88,4 @@ const TopBar = ({ toggleSidebar, className }: TopBarProps) => {
 };
 
 export default TopBar;
+

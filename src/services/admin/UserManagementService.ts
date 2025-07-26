@@ -11,6 +11,15 @@ export const getAllUsers = async () => {
     }
 }
 
+export const getUserByEmail = async (email: string) => {
+    try {
+        const response = await apiClient.get(`/user/${email}`);
+        return response.data;
+    } catch (error) {   
+        console.error('Error fetching user by email:', error);
+        throw error;
+    }
+}
 export const activateUser = async (userId: string) => {
     try {
         const response = await apiClient.patch(`/user/activate/${userId}`);
