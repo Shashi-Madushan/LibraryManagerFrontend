@@ -16,12 +16,14 @@ const BookCard: React.FC<BookCardProps> = ({ book, onEdit, onDelete, isAdmin = f
                     src={book.imageUrl}
                     alt={book.title}
                     className="w-full h-48 object-cover"
-                   
+
                 />
             )}
             <div className="p-4">
-                <h3 className="text-xl font-semibold mb-2">{book.title}</h3>
-                <p className="text-gray-600 mb-1">Author: {book.author}</p>
+                <div className="flex flex-col">
+                    <span className="font-medium">{book.title}</span>
+                    <span className="text-xs text-gray-500">{book.isbn}</span>
+                </div>                <p className="text-gray-600 mb-1">Author: {book.author}</p>
                 <p className="text-gray-600 mb-1">Category: {book.category}</p>
                 <p className="text-gray-600 mb-1">
                     Status: {book.available ? (
@@ -31,7 +33,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onEdit, onDelete, isAdmin = f
                     )}
                 </p>
                 <p className="text-gray-600 mb-2">Total Copies: {book.totalCopies}</p>
-                
+
                 {isAdmin && (
                     <div className="flex gap-2 mt-2">
                         <button

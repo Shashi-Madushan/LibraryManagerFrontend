@@ -25,7 +25,12 @@ const BookListView: React.FC<BookListViewProps> = ({ books, onEdit, onDelete }) 
                 <tbody className="divide-y divide-gray-200">
                     {books.map((book) => (
                         <tr key={book._id}>
-                            <td className="px-6 py-4 whitespace-nowrap">{book.title}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex flex-col">
+                                    <span className="font-medium">{book.title}</span>
+                                    <span className="text-xs text-gray-500">{book.isbn}</span>
+                                </div>
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">{book.author}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{book.category}</td>
                             <td className="px-6 py-4 whitespace-nowrap">

@@ -9,6 +9,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import BookManagement from "./pages/admin/BookManagement";
 import AuditLogs from "./pages/admin/AuditLogs";
 import  DashboardPage from "./pages/admin/DashboardPage";
+import  LendingManagement  from "./pages/admin/LendingManagement";
 
 const router = createBrowserRouter([
     {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
                     {
                         path: "users",
                         element: <UserManagement/>,
+                    },
+                    {
+                        path: "lendings",
+                        element: <LendingManagement/>,
                     },
                     {
                         path: "settings",
