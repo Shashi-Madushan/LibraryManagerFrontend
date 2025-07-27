@@ -34,6 +34,8 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
         { value: 'CREATE', label: 'Create' },
         { value: 'UPDATE', label: 'Update' },
         { value: 'DELETE', label: 'Delete' },
+        { value: 'LEND', label: 'Lend' },
+        { value: 'RETURN', label: 'Return' },
     ];
 
     const targetOptions = [
@@ -137,16 +139,20 @@ const AuditLogTable: React.FC<AuditLogTableProps> = ({
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                        log.action.startsWith('DELETE') 
-                                            ? 'bg-red-100 text-red-800'
-                                            : log.action.startsWith('UPDATE')
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : log.action.startsWith('CREATE')
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-blue-100 text-blue-800'
-                                    }`}>
-                                        {log.action.split('_').join(' ')}
-                                    </span>
+                                            log.action.startsWith('DELETE') 
+                                                ? 'bg-red-100 text-red-800'
+                                                : log.action.startsWith('UPDATE')
+                                                ? 'bg-yellow-100 text-yellow-800'
+                                                : log.action.startsWith('CREATE')
+                                                ? 'bg-green-100 text-green-800'
+                                                : log.action.startsWith('LEND')
+                                                ? 'bg-indigo-100 text-indigo-800'
+                                                : log.action.startsWith('RETURN')
+                                                ? 'bg-cyan-100 text-cyan-800'
+                                                : 'bg-blue-100 text-blue-800'
+                                        }`}>
+                                            {log.action.split('_').join(' ')}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         {log.performedBy ? (

@@ -56,6 +56,18 @@ const router = createBrowserRouter([
                         element: <LendingManagement/>,
                     },
                     {
+                        path: "lendings/by-book",
+                        element: <div>By Book</div>,
+                    },
+                    {
+                        path: "lendings/by-user",
+                        element: <div>By User</div>,
+                    },
+                    {
+                        path: "lendings/overdue",
+                        element: <div>Overdue Lendings</div>,
+                    },
+                    {
                         path: "settings",
                         element: <div>Settings</div>,
                     },

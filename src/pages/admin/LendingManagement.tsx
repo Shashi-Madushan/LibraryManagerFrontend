@@ -75,6 +75,7 @@ const LendingManagement = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
+            <h3 className="text-2xl font-bold mb-6">Manage All Lendings</h3>
             {loading ? (
                 <div className="flex justify-center items-center py-12">
                     <span className="text-gray-500 text-lg">Loading...</span>

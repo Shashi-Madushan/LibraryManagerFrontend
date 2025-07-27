@@ -66,7 +66,7 @@ const TopBar = ({
                                 </svg>
                             </button>
                         )}
-                        <div className="flex items-center gap-2 ml-4">
+                        {/* <div className="flex items-center gap-2 ml-4">
                             <input
                                 type="checkbox"
                                 id="serverSearch"
@@ -77,7 +77,7 @@ const TopBar = ({
                             <label htmlFor="serverSearch" className="text-xs text-gray-600 cursor-pointer select-none whitespace-nowrap">
                                 Database search
                             </label>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

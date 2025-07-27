@@ -59,7 +59,7 @@ const AdminLayout = () => {
             >
                 <TopBar
                     toggleSidebar={toggleSidebar}
-                    className={`fixed z-20 right-0 ${isDesktop ? 'left-[80px]' : 'left-0'} ${
+                    className={`fixed z-10 right-0 ${isDesktop ? 'left-[80px]' : 'left-0'} ${
                         isSidebarExpanded ? 'lg:left-[288px]' : ''
                     }`}
                     isExpanded={isSidebarExpanded}
