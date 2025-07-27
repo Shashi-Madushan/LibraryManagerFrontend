@@ -1,9 +1,9 @@
 import apiClient from "../ApiClient";
 
 // Get lending history for a user (authenticated users)
-export const getUserLendingHistory = async (userId: string) => {
+export const getUserLendingHistory = async (email: string) => {
     try {
-        const response = await apiClient.get(`/lendings/user/${userId}`);
+        const response = await apiClient.get(`/lendings/user/${email}`);
         return response;
     } catch (error) {
         // Handle error as needed
@@ -42,9 +42,9 @@ export const getLendings = async () => {
 };
 
 // Get lending history for a book (admin only)
-export const getBookLendingHistory = async (bookId: string) => {
+export const getBookLendingHistory = async (bookName: string) => {
     try {
-        const response = await apiClient.get(`/lendings/book/${bookId}`);
+        const response = await apiClient.get(`/lendings/book/${bookName}`);
         return response;
     } catch (error) {
         throw error;

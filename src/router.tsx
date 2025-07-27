@@ -10,6 +10,8 @@ import BookManagement from "./pages/admin/BookManagement";
 import AuditLogs from "./pages/admin/AuditLogs";
 import  DashboardPage from "./pages/admin/DashboardPage";
 import  LendingManagement  from "./pages/admin/LendingManagement";
+import GetLendingByBook from "./pages/admin/GetLendingByBook";
+import GetLendingByUser from "./pages/admin/GetLendingByUser";
 
 const router = createBrowserRouter([
     {
@@ -57,11 +59,11 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "lendings/by-book",
-                        element: <div>By Book</div>,
+                        element: <GetLendingByBook />,
                     },
                     {
                         path: "lendings/by-user",
-                        element: <div>By User</div>,
+                        element: <GetLendingByUser />,
                     },
                     {
                         path: "lendings/overdue",
