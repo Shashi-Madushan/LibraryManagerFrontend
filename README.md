@@ -1,5 +1,7 @@
 # Library Management System
 
+> **Backend Repository:** [LibraryManagerBackend (GitHub)](https://github.com/Shashi-Madushan/LibraryMAnagerBackend.git)
+
 This repository contains both the **Frontend** and **Backend** for a Library Management System. The backend is built with Node.js, Express, and MongoDB, while the frontend uses React, TypeScript, and Tailwind CSS.
 
 ---
