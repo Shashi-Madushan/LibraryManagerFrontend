@@ -106,23 +106,23 @@ const DashboardPage = () => {
     };
 
     return (
-        <div className="p-6 max-h-screen bg-gray-50 relative">
+        <div className="p-2 md:p-6 max-h-screen bg-gray-50 relative">
             <Dashboard/>
 
             {/* Floating Add Button */}
             <button
                 onClick={handleAddButtonClick}
-                className="fixed right-8 bottom-8 px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-lg hover:bg-indigo-700 flex items-center justify-center z-10 hover:scale-105 transition-transform"
+                className="fixed right-4 md:right-8 bottom-4 md:bottom-8 px-4 md:px-6 py-2 md:py-3 bg-indigo-600 text-white rounded-lg shadow-lg hover:bg-indigo-700 flex items-center justify-center z-10 hover:scale-105 transition-transform"
                 title="Add"
             >
                 <FaPlus className="w-5 h-5 mr-2" />
-                Lend A Book
+                <span className="hidden sm:inline">Lend A Book</span>
             </button>
 
             {/* User Search Modal */}
             {isUserModalOpen && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10">
-                    <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full relative">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 px-2">
+                    <div className="bg-white rounded-xl shadow-xl p-4 md:p-8 w-full max-w-xs sm:max-w-md relative">
                         <button
                             onClick={() => setIsUserModalOpen(false)}
                             className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
@@ -190,8 +190,8 @@ const DashboardPage = () => {
 
             {/* Book Search & Lend Modal */}
             {isBookModalOpen && selectedUser && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10">
-                    <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full relative">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 px-2">
+                    <div className="bg-white rounded-xl shadow-xl p-4 md:p-8 w-full max-w-xs sm:max-w-md relative">
                         <button
                             onClick={() => setIsBookModalOpen(false)}
                             className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"

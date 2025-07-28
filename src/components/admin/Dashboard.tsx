@@ -53,43 +53,53 @@ const Dashboard = () => {
 	];
 
 	return (
-		<div className="min-h-screen bg-gray-50 p-6">
-			<h1 className="text-2xl font-bold mb-6 text-gray-800">
+		<div className="min-h-screen bg-gray-50 p-2 md:p-6">
+			<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-gray-800">
 				Admin Dashboard
 			</h1>
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
 				{loading ? (
-					<div className="col-span-4 text-center text-gray-500">Loading...</div>
+					<div className="col-span-1 sm:col-span-2 md:col-span-4 text-center text-gray-500">
+						Loading...
+					</div>
 				) : (
 					stats.map((stat) => (
 						<div
 							key={stat.label}
-							className={`rounded-xl shadow-sm p-6 flex items-center gap-4 ${stat.bg}`}
+							className={`rounded-xl shadow-sm p-4 md:p-6 flex items-center gap-3 md:gap-4 ${stat.bg}`}
 						>
 							<div>{stat.icon}</div>
 							<div>
-								<div className="text-xl font-semibold text-gray-700">
+								<div className="text-lg md:text-xl font-semibold text-gray-700">
 									{stat.value}
 								</div>
-								<div className="text-sm text-gray-500">{stat.label}</div>
+								<div className="text-xs md:text-sm text-gray-500">
+									{stat.label}
+								</div>
 							</div>
 						</div>
 					))
 				)}
 			</div>
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
 				{/* Shortcuts Section */}
-				<div className="col-span-1 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4">
-					<div className="font-semibold text-gray-700 mb-2">Shortcuts</div>
-					<div className="grid grid-cols-2 gap-4">
+				<div className="col-span-1 rounded-xl bg-white shadow-sm p-4 md:p-6 flex flex-col gap-3 md:gap-4">
+					<div className="font-semibold text-gray-700 mb-1 md:mb-2">
+						Shortcuts
+					</div>
+					<div className="grid grid-cols-2 gap-2 md:gap-4">
 						{shortcuts.map((sc) => (
 							<a
 								key={sc.label}
 								href={sc.link}
-								className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+								className="flex flex-col items-center justify-center gap-1 md:gap-2 p-2 md:p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
 							>
-								<span className="text-xl text-indigo-500">{sc.icon}</span>
-								<span className="text-sm text-gray-600">{sc.label}</span>
+								<span className="text-lg md:text-xl text-indigo-500">
+									{sc.icon}
+								</span>
+								<span className="text-xs md:text-sm text-gray-600">
+									{sc.label}
+								</span>
 							</a>
 						))}
 					</div>
