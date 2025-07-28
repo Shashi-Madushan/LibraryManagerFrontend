@@ -12,6 +12,8 @@ import  DashboardPage from "./pages/admin/DashboardPage";
 import  LendingManagement  from "./pages/admin/LendingManagement";
 import GetLendingByBook from "./pages/admin/GetLendingByBook";
 import GetLendingByUser from "./pages/admin/GetLendingByUser";
+import  GetOverDueLending from "./pages/admin/GetOverDueLending";
+import Settings from "./pages/admin/Settings";
 
 const router = createBrowserRouter([
     {
@@ -67,11 +69,11 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "lendings/overdue",
-                        element: <div>Overdue Lendings</div>,
+                        element: <GetOverDueLending />,
                     },
                     {
                         path: "settings",
-                        element: <div>Settings</div>,
+                        element: <Settings />   ,
                     },
                     {
                         path: "audit-logs",

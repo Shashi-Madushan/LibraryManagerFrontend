@@ -82,7 +82,7 @@ export const getUserInfo = async () => {
     }
 }
 
-export const updateUserInfo = async (userData: any) => {
+export const updateMyInfo = async (userData: any) => {
     try {
         const response = await apiClient.patch('/user/update', userData);
         return response.data;

@@ -49,9 +49,9 @@ const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
             label: 'Lendings', 
             path: '/admin/lendings',
             subLinks: [
-                { icon: <FaTasks />, label: 'Manage Lendings', path: '/admin/lendings' },
-                { icon: <FaSearch />, label: 'By Book', path: '/admin/lendings/by-book' },
-                { icon: <FaUser />, label: 'By User', path: '/admin/lendings/by-user' },
+                { icon: <FaTasks />, label: 'All Lendings', path: '/admin/lendings' },
+                { icon: <FaSearch />, label: 'Find By Book', path: '/admin/lendings/by-book' },
+                { icon: <FaUser />, label: 'Find By User', path: '/admin/lendings/by-user' },
                 { icon: <FaExclamationCircle />, label: 'Overdue Lendings', path: '/admin/lendings/overdue' },
             ]
         },

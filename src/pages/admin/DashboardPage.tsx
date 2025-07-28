@@ -5,6 +5,7 @@ import { getBookByName } from '../../services/admin/BookManagementService';
 import { lendBook } from '../../services/admin/LendingManagementService';
 import type { User } from '../../types/User';
 import type { Book } from '../../types/Book';
+import Dashboard from '../../components/admin/Dashboard';
 
 
 const DashboardPage = () => {
@@ -14,14 +15,15 @@ const DashboardPage = () => {
     const [searchUserTerm, setSearchUserTerm] = useState('');
     const [userResults, setUserResults] = useState<User[]>([]);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
     const [searchBookTerm, setSearchBookTerm] = useState('');
     const [bookResults, setBookResults] = useState<Book[]>([]);
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-    const [lendingDays, setLendingDays] = useState('');
 
     const [loadingUser, setLoadingUser] = useState(false);
     const [loadingBook, setLoadingBook] = useState(false);
+
+    const [userSearchPerformed, setUserSearchPerformed] = useState(false);
+    const [bookSearchPerformed, setBookSearchPerformed] = useState(false);
 
     // Open user search modal
     const handleAddButtonClick = () => {
@@ -33,12 +35,12 @@ const DashboardPage = () => {
         setSearchBookTerm('');
         setBookResults([]);
         setSelectedBook(null);
-        setLendingDays('');
     };
 
     // User search using imported function
     const handleSearchUser = async () => {
         setLoadingUser(true);
+        setUserSearchPerformed(true);
         try {
             const term = searchUserTerm.trim();
             const result = await getUserByEmail(term);
@@ -64,6 +66,7 @@ const DashboardPage = () => {
     // Book search using imported function
     const handleSearchBook = async () => {
         setLoadingBook(true);
+        setBookSearchPerformed(true);
         try {
             const results = await getBookByName(searchBookTerm);
             if (!results || results.length === 0) {
@@ -86,27 +89,25 @@ const DashboardPage = () => {
 
     // Lend book
     const handleLendBook = async () => {
-        if (!selectedUser || !selectedBook || !lendingDays) return;
+        if (!selectedUser || !selectedBook) return;
         try {
             const data = {
                 userId: selectedUser._id,
                 bookId: selectedBook._id,
-                lendigTime: lendingDays,
             };
             await lendBook(data);
-            alert(`Successfully lent "${selectedBook.title}" to ${selectedUser.email} for ${lendingDays} days.`);
+            alert(`Successfully lent "${selectedBook.title}" to ${selectedUser.email}.`);
         } catch (error) {
             alert('Failed to lend book. Please try again.');
         }
         setIsBookModalOpen(false);
         setSelectedUser(null);
         setSelectedBook(null);
-        setLendingDays('');
     };
 
     return (
         <div className="p-6 max-h-screen bg-gray-50 relative">
-            <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+            <Dashboard/>
 
             {/* Floating Add Button */}
             <button
@@ -179,7 +180,8 @@ const DashboardPage = () => {
                                 </ul>
                             </div>
                         )}
-                        {!loadingUser && userResults.length === 0 && searchUserTerm.trim() && (
+                        {/* Only show not found if search was performed and no results */}
+                        {!loadingUser && userSearchPerformed && userResults.length === 0 && (
                             <div className="text-sm text-red-500 text-center py-2">No user found.</div>
                         )}
                     </div>
@@ -251,24 +253,15 @@ const DashboardPage = () => {
                                 </ul>
                             </div>
                         )}
-                        {!loadingBook && bookResults.length === 0 && searchBookTerm.trim() && (
+                        {/* Only show not found if search was performed and no results */}
+                        {!loadingBook && bookSearchPerformed && bookResults.length === 0 && (
                             <div className="text-sm text-red-500 text-center py-2">No book found.</div>
                         )}
                         {selectedBook && (
                             <div className="mt-4">
-                                <label className="block text-sm font-medium mb-1">Lending Days</label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={lendingDays}
-                                    onChange={e => setLendingDays(e.target.value)}
-                                    className="border rounded-lg px-3 py-2 w-full mb-4 focus:outline-indigo-500"
-                                    placeholder="Enter number of days"
-                                />
                                 <button
                                     onClick={handleLendBook}
                                     className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                                    disabled={!lendingDays}
                                 >
                                     Lend Book
                                 </button>

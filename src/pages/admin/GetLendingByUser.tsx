@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { getUserLendingHistory } from "../../services/admin/LendingManagementService";
+import { getUserLendingHistory, returnBook } from "../../services/admin/LendingManagementService";
 import type { ILending } from "../../types/Lending";
-import { FaSearch, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaSearch, FaCheckCircle, FaTimesCircle, FaSyncAlt } from "react-icons/fa";
 
 const GetLendingByUser = () => {
   const [email, setEmail] = useState("");
   const [lendings, setLendings] = useState<ILending[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [returningId, setReturningId] = useState<string | null>(null);
+  const [returnLoading, setReturnLoading] = useState(false);
 
   const handleSearch = async () => {
     if (!email.trim()) return;
@@ -22,6 +24,27 @@ const GetLendingByUser = () => {
       setLendings([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReturn = async (lendingId: string) => {
+    setReturningId(lendingId);
+  };
+
+  const confirmReturn = async () => {
+    if (!returningId) return;
+    setReturnLoading(true);
+    try {
+      await returnBook(returningId);
+      // Refresh lendings after return
+      const response = await getUserLendingHistory(email.trim());
+      const data = Array.isArray(response.data) ? response.data : response.data?.data || [];
+      setLendings(data);
+    } catch (error) {
+      alert("Failed to return book.");
+    } finally {
+      setReturnLoading(false);
+      setReturningId(null);
     }
   };
 
@@ -91,13 +114,29 @@ const GetLendingByUser = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <button
-                      className="p-2 rounded bg-blue-100 hover:bg-blue-200 text-blue-600 transition"
-                      title="View Details"
-                      // Add details logic if needed
-                    >
-                      Details
-                    </button>
+                    <div className="flex gap-2">
+                      {!lending.isReturned ? (
+                        <button
+                          className="p-2 rounded-full bg-green-100 hover:bg-green-200 text-green-600 transition"
+                          onClick={() => handleReturn(lending._id)}
+                          title="Return Book"
+                          disabled={returnLoading && returningId === lending._id}
+                        >
+                          {returnLoading && returningId === lending._id ? (
+                            <FaSyncAlt className="animate-spin" />
+                          ) : (
+                            <span>Return</span>
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          className="p-2 rounded bg-blue-100 hover:bg-blue-200 text-blue-600 transition"
+                          title="View Details"
+                        >
+                          Details
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -105,6 +144,31 @@ const GetLendingByUser = () => {
           </table>
         </div>
       ) : null}
+      {/* Popup for confirming return */}
+      {returningId && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-20">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-4">Confirm Return</h2>
+            <p className="mb-6">Are you sure you want to mark this book as returned?</p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
+                onClick={() => setReturningId(null)}
+                disabled={returnLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
+                onClick={confirmReturn}
+                disabled={returnLoading}
+              >
+                {returnLoading ? "Returning..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
