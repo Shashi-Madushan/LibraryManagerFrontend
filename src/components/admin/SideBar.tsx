@@ -59,6 +59,9 @@ const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
         { icon: <FaCog />, label: 'Settings', path: '/admin/settings' },
     ];
 
+    // Helper to detect mobile view
+    const isMobile = window.innerWidth < 1024;
+
     return (
         <>
             {/* Sidebar */}
@@ -94,9 +97,10 @@ const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
                                                 ${location.pathname.startsWith('/admin/lendings') ? 'bg-blue-50/80 text-blue-600 font-medium' : 'text-gray-600'}
                                             `}
                                             onClick={() => {
-                                                // Only allow expanding/collapsing sublinks if sidebar is expanded
-                                                if (isExpanded) handleLendingsClick();
-                                                if (window.innerWidth < 1024) onClose();
+                                                // Expand/collapse on desktop, always show on mobile
+                                                if (!isMobile && isExpanded) handleLendingsClick();
+                                                if (isMobile) setLendingsExpanded(true);
+                                                if (isMobile) onClose();
                                             }}
                                             type="button"
                                         >
@@ -105,14 +109,14 @@ const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
                                                 {item.label}
                                             </span>
                                             <span className="ml-auto">
-                                                {/* Only show chevron if sidebar is expanded */}
-                                                {isExpanded ? (lendingsExpanded ? <FaChevronDown /> : <FaChevronRight />) : null}
+                                                {/* Only show chevron if sidebar is expanded and not mobile */}
+                                                {!isMobile && isExpanded ? (lendingsExpanded ? <FaChevronDown /> : <FaChevronRight />) : null}
                                             </span>
                                         </button>
-                                        {/* Sub-links: only show if sidebar is expanded and lendingsExpanded is true */}
+                                        {/* Sub-links: show if (desktop & expanded & lendingsExpanded) OR (mobile) */}
                                         <ul
                                             className={`pl-10 mt-1 space-y-1 transition-all duration-200
-                                                ${isExpanded && lendingsExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}
+                                                ${(isMobile || (isExpanded && lendingsExpanded)) ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}
                                             `}
                                         >
                                             {item.subLinks?.map((sub, subIdx) => (
@@ -124,11 +128,11 @@ const SideBar = ({  onClose, onExpandChange }: SideBarProps) => {
                                                             ${location.pathname === sub.path ? 'bg-blue-100 text-blue-700 font-medium' : 'text-gray-600'}
                                                         `}
                                                         onClick={() => {
-                                                            if (window.innerWidth < 1024) onClose();
+                                                            if (isMobile) onClose();
                                                         }}
                                                     >
                                                         <span className="text-base">{sub.icon}</span>
-                                                        <span className={`whitespace-nowrap transition-all ${isExpanded ? 'opacity-100' : 'lg:opacity-0 lg:w-0'}`}>
+                                                        <span className={`whitespace-nowrap transition-all ${isExpanded || isMobile ? 'opacity-100' : 'lg:opacity-0 lg:w-0'}`}>
                                                             {sub.label}
                                                         </span>
                                                     </Link>
