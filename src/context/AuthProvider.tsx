@@ -64,6 +64,7 @@ const handleNavigation = (currentPath: string, userRole?: string) => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialState)
 
+  // Return the new token from handleRefreshToken
   const handleRefreshToken = async () => {
     try {
       const result = await refreshTokenRequest()
@@ -74,21 +75,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       storeAuthData(accessToken, user || getStoredUser())
       setHeader(accessToken)
       dispatch({ type: 'SET_AUTH_DATA', payload: { token: accessToken, user: user || getStoredUser() } })
-      return true
+      return accessToken // <-- return the new token
     } catch (error) {
       console.error('Token refresh failed:', error)
       clearAuthData()
       dispatch({ type: 'CLEAR_AUTH_DATA' })
-      return false
+      return null
     }
   }
 
   useEffect(() => {
     const interceptor = apiClient.interceptors.response.use(
-        response => response,
-        createRequestRetrier(handleRefreshToken)
-    );
-    return () => apiClient.interceptors.response.eject(interceptor);
+      response => response,
+      createRequestRetrier(async () => {
+        const newToken = await handleRefreshToken()
+        if (newToken) {
+          setHeader(newToken)
+        }
+        return newToken
+      })
+    )
+    return () => apiClient.interceptors.response.eject(interceptor)
   }, [])
 
   useEffect(() => {

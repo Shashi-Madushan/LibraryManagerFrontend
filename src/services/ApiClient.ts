@@ -26,7 +26,7 @@ if (storedToken) {
 
 export const refreshTokenRequest = () => apiClient.post("/auth/refresh-token")
 
-export const createRequestRetrier = (refreshTokenFn: () => Promise<boolean>) => {
+export const createRequestRetrier = (refreshTokenFn: () => Promise<string | null>) => {
   let isRefreshing = false;
   let failedQueue: Array<{
     resolve: (value?: unknown) => void;
@@ -55,6 +55,11 @@ export const createRequestRetrier = (refreshTokenFn: () => Promise<boolean>) => 
           await new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           });
+          // Update the token in the retried request
+          const newToken = getStoredAccessToken();
+          if (newToken) {
+            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          }
           return apiClient(originalRequest);
         } catch (err) {
           return Promise.reject(err);
@@ -64,8 +69,11 @@ export const createRequestRetrier = (refreshTokenFn: () => Promise<boolean>) => 
       isRefreshing = true;
 
       try {
-        await refreshTokenFn();
+        const newToken = await refreshTokenFn();
         processQueue();
+        if (newToken) {
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+        }
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
